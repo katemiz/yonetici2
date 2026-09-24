@@ -7,6 +7,7 @@ use App\Models\Bina;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Inertia\Inertia;
 
 class BinaController extends Controller
 {
@@ -38,7 +39,7 @@ class BinaController extends Controller
         $is_bina_selected = false;
 
         if (count($binalarim) == 0) {
-            return view('dashboard', [
+            return Inertia::render('Dashboard', [
                 'is_bina_selected' => $is_bina_selected,
                 'bina_sayisi' => 0,
             ]);
@@ -50,7 +51,7 @@ class BinaController extends Controller
 
             $is_bina_selected = true;
 
-            return view('dashboard', [
+            return Inertia::render('Dashboard', [
                 'is_bina_selected' => $is_bina_selected,
                 'bina_sayisi' => 1,
                 'bina' => $binalarim->first(),

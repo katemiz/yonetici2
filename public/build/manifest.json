@@ -16,18 +16,36 @@
     "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-l5lVjuV0.css",
+    "file": "assets/app-CpSCjz4k.css",
     "src": "resources/css/app.css",
-    "isEntry": true,
-    "name": "app",
-    "names": [
-      "app.css"
+    "isEntry": true
+  },
+  "resources/js/Pages/Dashboard.svelte": {
+    "file": "assets/Dashboard-CmbHWnnv.js",
+    "name": "Dashboard",
+    "src": "resources/js/Pages/Dashboard.svelte",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "resources/js/Pages/Welcome.svelte": {
+    "file": "assets/Welcome-D90UxEkh.js",
+    "name": "Welcome",
+    "src": "resources/js/Pages/Welcome.svelte",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-4jrl_8_F.js",
+    "file": "assets/app-avnFHA0P.js",
     "name": "app",
     "src": "resources/js/app.js",
-    "isEntry": true
+    "isEntry": true,
+    "dynamicImports": [
+      "resources/js/Pages/Dashboard.svelte",
+      "resources/js/Pages/Welcome.svelte"
+    ]
   }
 }

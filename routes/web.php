@@ -18,6 +18,7 @@ use App\Http\Livewire\OkumaList;
 use App\Http\Livewire\KararList;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
+use Inertia\Inertia;
 
 
 use App\Http\Livewire\SayacOkuma;
@@ -37,7 +38,7 @@ use App\Http\Controllers\PDFController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return Inertia::render('Welcome');
 });
 
 Route::get('lang/{lang}', [

@@ -14,3 +14,9 @@
 .navcontanier {
     background-color: rgb(44, 87, 132) !important;
 }
+
+html,
+body,
+#app {
+    min-height: 100%;
+}
