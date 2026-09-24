@@ -23,18 +23,18 @@
         <div class="navbar-menu is-active">
             <div class="navbar-start">
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a href="/durum/ozet" class="navbar-link"><i class="fa-solid fa-chart-line mr-1" aria-hidden="true"></i>Durum</a>
+                    <a href="/durum/ozet" class="navbar-link"><i class="fa-regular fa-chart-bar menu-icon" aria-hidden="true"></i>Durum</a>
                     <div class="navbar-dropdown">
                         <a href="/durum/ozet" class="navbar-item">Genel Özet</a>
                         <a href="/durum/alacaklar" class="navbar-item">Alacaklar</a>
                         <a href="/durum/verecekler" class="navbar-item">Verecekler</a>
                     </div>
                 </div>
-                <a href="/durum/gelirler" class="navbar-item"><i class="fa-solid fa-coins mr-1" aria-hidden="true"></i>Gelir</a>
-                <a href="/durum/giderler" class="navbar-item"><i class="fa-solid fa-money-bill-transfer mr-1" aria-hidden="true"></i>Gider</a>
-                <a href="/durum/verecekler" class="navbar-item"><i class="fa-solid fa-file-invoice mr-1" aria-hidden="true"></i>Faturalar</a>
+                <a href="/durum/gelirler" class="navbar-item"><i class="fa-regular fa-money-bill-1 menu-icon" aria-hidden="true"></i>Gelir</a>
+                <a href="/durum/giderler" class="navbar-item"><i class="fa-regular fa-money-bill-1 menu-icon" aria-hidden="true"></i>Gider</a>
+                <a href="/durum/verecekler" class="navbar-item"><i class="fa-regular fa-file-lines menu-icon" aria-hidden="true"></i>Faturalar</a>
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a href="/kayit-form/aidat" class="navbar-link"><i class="fa-solid fa-pen-to-square mr-1" aria-hidden="true"></i>Kayıtlar</a>
+                    <a href="/kayit-form/aidat" class="navbar-link"><i class="fa-regular fa-pen-to-square menu-icon" aria-hidden="true"></i>Kayıtlar</a>
                     <div class="navbar-dropdown">
                         <a href="/kayit-form/aidat" class="navbar-item">Toplu Aidat Kaydı</a>
                         <a href="/kayit-form/alacak" class="navbar-item">Alacak Kaydı</a>
@@ -45,7 +45,7 @@
                     </div>
                 </div>
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a href="/dokum" class="navbar-link"><i class="fa-solid fa-print mr-1" aria-hidden="true"></i>Yazdır</a>
+                    <a href="/dokum" class="navbar-link"><i class="fa-regular fa-print menu-icon" aria-hidden="true"></i>Yazdır</a>
                     <div class="navbar-dropdown">
                         <a href="/dokum" class="navbar-item">Gelir-Gider Döküm</a>
                         <a href="/aylik-aidatlar" class="navbar-item">Aylık Aidatlar</a>
@@ -63,12 +63,12 @@
                         {/if}
                     </a>
                     <div class="navbar-dropdown is-right">
-                        <a href="/bina-list" class="navbar-item"><i class="fa-solid fa-building mr-1" aria-hidden="true"></i>Binalarım</a>
-                        <a href="/help" class="navbar-item"><i class="fa-solid fa-circle-question mr-1" aria-hidden="true"></i>Yardım</a>
+                        <a href="/bina-list" class="navbar-item"><i class="fa-regular fa-building menu-icon" aria-hidden="true"></i>Binalarım</a>
+                        <a href="/help" class="navbar-item"><i class="fa-regular fa-circle-question menu-icon" aria-hidden="true"></i>Yardım</a>
                         <form method="POST" action="/logout">
                             <input type="hidden" name="_token" value={document.querySelector('meta[name=csrf-token]').content}>
                             <button class="navbar-item button is-white is-fullwidth has-text-left" type="submit">
-                                <i class="fa-solid fa-right-from-bracket mr-1" aria-hidden="true"></i>Çıkış
+                                <i class="fa-regular fa-circle-right menu-icon" aria-hidden="true"></i>Çıkış
                             </button>
                         </form>
                     </div>
@@ -98,5 +98,12 @@
         align-items: flex-end;
         flex-direction: column;
         justify-content: center;
+    }
+
+    :global(.menu-icon) {
+        color: hsl(217, 71%, 35%);
+        font-size: 1.15em;
+        margin-right: 0.4rem;
+        width: 1.2em;
     }
 </style>
