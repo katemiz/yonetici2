@@ -20,3 +20,13 @@ body,
 #app {
     min-height: 100%;
 }
+
+body.app-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body.app-shell > #app {
+    flex: 1;
+}
