@@ -1,5 +1,11 @@
 <script>
     import { Link } from '@inertiajs/svelte';
+
+    export let auth = { user: null };
+    export let selected_bina = null;
+
+    $: user = auth?.user;
+    $: userName = user ? `${user.name ?? ''} ${user.lastname ?? ''}`.trim() : '';
 </script>
 
 <svelte:head>
@@ -13,10 +19,43 @@
                 <img src="/images/app_header_logo.svg" alt="Akıllı Yönetici">
             </Link>
         </div>
-        <div class="navbar-end">
-            <a href="/login" class="navbar-item">Giriş</a>
-            <a href="/register" class="navbar-item">Kaydolun</a>
-        </div>
+        {#if user}
+            <div class="navbar-menu is-active">
+                <div class="navbar-start">
+                    <a href="/dashboard" class="navbar-item">Gösterge Paneli</a>
+                    <a href="/durum/gelirler" class="navbar-item">Gelir</a>
+                    <a href="/durum/giderler" class="navbar-item">Gider</a>
+                    <a href="/durum/verecekler" class="navbar-item">Faturalar</a>
+                    <a href="/kayit-form/aidat" class="navbar-item">Kayıtlar</a>
+                    <a href="/dokum" class="navbar-item">Yazdır</a>
+                </div>
+                <div class="navbar-end">
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a href="/bina-list" class="navbar-link user-summary">
+                            <span class="is-block">{userName}</span>
+                            {#if selected_bina}
+                                <small class="is-block">{selected_bina}</small>
+                            {/if}
+                        </a>
+                        <div class="navbar-dropdown is-right">
+                            <a href="/bina-list" class="navbar-item">Binalarım</a>
+                            <a href="/help" class="navbar-item">Yardım</a>
+                            <form method="POST" action="/logout">
+                                <input type="hidden" name="_token" value={document.querySelector('meta[name=csrf-token]').content}>
+                                <button class="navbar-item button is-white is-fullwidth has-text-left" type="submit">
+                                    Çıkış
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {:else}
+            <div class="navbar-end">
+                <a href="/login" class="navbar-item">Giriş</a>
+                <a href="/register" class="navbar-item">Kaydolun</a>
+            </div>
+        {/if}
     </div>
 </nav>
 
@@ -40,3 +79,11 @@
         </div>
     </div>
 </main>
+
+<style>
+    :global(.user-summary) {
+        align-items: flex-end;
+        flex-direction: column;
+        justify-content: center;
+    }
+</style>
