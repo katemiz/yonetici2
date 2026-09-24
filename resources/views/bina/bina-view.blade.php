@@ -1,18 +1,6 @@
 <div class="section container">
 
-    <div class="level">
-        <div class="level-left">
-            <h1 class="title has-text-weight-light mb-0">{{$bina->name}}</h1>
-        </div>
-        <div class="level-right">
-            <a href="/bina-form/{{ $bina->id }}" class="button is-link is-light">
-                <span class="icon">
-                    <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
-                </span>
-                <span>Bina Formu</span>
-            </a>
-        </div>
-    </div>
+    <h1 class="title has-text-weight-light">{{$bina->name}}</h1>
     <h2 class="subtitle">Özellikler</h2>
 
     <x-icon icon="arrow_back" fill="{{config('constants.icons.color.active')}}" />
