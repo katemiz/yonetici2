@@ -15,6 +15,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'selected_bina' => $request->session()->get('selected_bina'),
         ]);
     }
 }
