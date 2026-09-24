@@ -52,20 +52,25 @@
                     <div class="control">
                         <div class="select" >
                             <select name="binacity">
-                            <option value="6">Ankara</option>
-                            <option value="34">İstanbul</option>
+                                <option value="6" {{ $bina && $bina->city == '6' ? 'selected' : '' }}>Ankara</option>
+                                <option value="34" {{ $bina && $bina->city == '34' ? 'selected' : '' }}>İstanbul</option>
                             </select>
                         </div>
-
-                        <div class="field">
-                            <label class="label" for="resident_access_code">Bina sakini giriş kodu</label>
-                            <div class="control">
-                                <input class="input" id="resident_access_code" type="password"
-                                    name="resident_access_code" placeholder="Sakinlerin kullanacağı ortak kod">
-                            </div>
-                            <p class="help">Sakinler telefon numarası ve bu ortak kod ile yalnızca görüntüleme alanına giriş yapar.</p>
-                        </div>
                     </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="resident_access_code">Bina sakini giriş kodu</label>
+                    <div class="control">
+                        <input class="input" id="resident_access_code" type="text"
+                            name="resident_access_code" value="{{ old('resident_access_code') }}"
+                            placeholder="Sakinlerin kullanacağı ortak kod"
+                            autocomplete="off">
+                    </div>
+                    <p class="help">
+                        Sakinler telefon numarası ve bu ortak kod ile yalnızca görüntüleme alanına giriş yapar.
+                        Güncellemede boş bırakırsanız mevcut kod korunur.
+                    </p>
                 </div>
 
                 <div class="column has-text-right">

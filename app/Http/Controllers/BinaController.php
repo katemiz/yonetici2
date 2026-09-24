@@ -84,6 +84,10 @@ class BinaController extends Controller
 
     public function addBina(Request $req)
     {
+        $req->validate([
+            'resident_access_code' => ['nullable', 'string', 'max:64'],
+        ]);
+
         $props['user_id'] = Auth::id();
         $props['name'] = $req->input('binaname');
         $props['pbirimi'] = $req->input('parabirimi');
@@ -110,6 +114,10 @@ class BinaController extends Controller
 
     public function updateBina(Request $req)
     {
+        $req->validate([
+            'resident_access_code' => ['nullable', 'string', 'max:64'],
+        ]);
+
         $props['user_id'] = Auth::id();
         $props['name'] = $req->input('binaname');
         $props['pbirimi'] = $req->input('parabirimi');
