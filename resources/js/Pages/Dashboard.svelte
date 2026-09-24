@@ -57,7 +57,7 @@
             <div class="navbar-end">
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a href="/bina-list" class="navbar-link has-text-right">
-                        {userName || 'Kullanıcı'}
+                        <span class="is-block">{userName || 'Kullanıcı'}</span>
                         {#if selected_bina}
                             <small class="is-block">{selected_bina}</small>
                         {/if}
