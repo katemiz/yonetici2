@@ -56,7 +56,7 @@
 
             <div class="navbar-end">
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a href="/bina-list" class="navbar-link has-text-right">
+                    <a href="/bina-list" class="navbar-link user-summary">
                         <span class="is-block">{userName || 'Kullanıcı'}</span>
                         {#if selected_bina}
                             <small class="is-block">{selected_bina}</small>
@@ -90,3 +90,11 @@
         {/if}
     </div>
 </main>
+
+<style>
+    :global(.user-summary) {
+        align-items: flex-end;
+        flex-direction: column;
+        justify-content: center;
+    }
+</style>
