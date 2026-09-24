@@ -63,8 +63,10 @@ class PDFController extends Controller
     public function dolumakbuz(Request $request)
     {
         $this->initialize();
-        $this->getData(request('record'));
-        $this->preparePdfFile(request('record'));
+        $record = $request->route('record');
+        $this->getData($record);
+
+        return $this->preparePdfFile($record);
     }
 
 
