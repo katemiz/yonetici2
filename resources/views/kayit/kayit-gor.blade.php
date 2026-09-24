@@ -14,20 +14,9 @@
                 </div>
                 <div class="cell has-text-right">
 
-                    <a href="/makbuzpdf/{{ $kayit['id'] }}'" class="icon mr-6">
+                    <a href="/makbuzpdf/{{ $kayit['id'] }}" class="icon mr-6" aria-label="PDF indir">
                         <i class="fa-regular fa-file-pdf"></i>
                     </a>
-
-
-                    <a href="/makbuzpdf/{{ $kayit['id'] }}'" class="icon mr-6">
-                        <i class="fa-regular fa-file-pdf"></i>İkinci
-                    </a>
-
-                    <button onclick={()=> generateInvoicePDF(invoice)}
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                        >
-                        Download PDF
-                    </button>
 
 
                 </div>
