@@ -17,7 +17,7 @@ createInertiaApp({
         `./Pages/${name}.svelte`,
         import.meta.glob('./Pages/**/*.svelte'),
     ),
-    setup({ el, App, props }) {
-        new App({ target: el, props });
+    setup({ el, App }) {
+        new App({ target: el });
     },
 });
