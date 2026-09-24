@@ -108,6 +108,14 @@
                     <div class="content">
                         {{ $bina->address }}
                         <p class="mt-3">Kullanılan Para Birimi : {{ $bina->pbirimi }}</p>
+                        <p class="mt-3">
+                            <strong>Bina sakini ortak giriş kodu:</strong>
+                            @if ($bina->resident_access_code)
+                                <span class="has-text-success">Yapılandırılmış</span>
+                            @else
+                                <span class="has-text-warning-dark">Tanımlanmamış</span>
+                            @endif
+                        </p>
                     </div>
                 </div>
 

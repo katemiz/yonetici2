@@ -61,6 +61,11 @@
 
                 <div class="field">
                     <label class="label" for="resident_access_code">Bina sakini giriş kodu</label>
+                    @if ($bina && $bina->resident_access_code)
+                        <div class="notification is-success is-light py-2">
+                            Mevcut ortak giriş kodu yapılandırılmıştır.
+                        </div>
+                    @endif
                     <div class="control">
                         <input class="input" id="resident_access_code" type="text"
                             name="resident_access_code" value="{{ old('resident_access_code') }}"
@@ -69,7 +74,8 @@
                     </div>
                     <p class="help">
                         Sakinler telefon numarası ve bu ortak kod ile yalnızca görüntüleme alanına giriş yapar.
-                        Güncellemede boş bırakırsanız mevcut kod korunur.
+                        Güvenlik nedeniyle kayıtlı kod gösterilmez. Yeni kod girmek için bu alanı doldurun;
+                        güncellemede boş bırakırsanız mevcut kod korunur.
                     </p>
                 </div>
 
