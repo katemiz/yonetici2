@@ -66,10 +66,12 @@
                 <h1 class="title is-size-1">Akıllı Yönetici<br>Akıllı Uygulama</h1>
                 <p class="subtitle">Tüm işlemlerinizi cepten yönetin.</p>
                 <p>Site ve apartman yönetiminizi; aidat, gelir-gider, fatura ve karar kayıtlarını tek bir uygulamadan takip edin.</p>
-                <div class="buttons mt-5">
-                    <a href="/login" class="button is-link">Giriş yap</a>
-                    <a href="/register" class="button is-light">Hesap oluştur</a>
-                </div>
+                {#if !user}
+                    <div class="buttons mt-5">
+                        <a href="/login" class="button is-link">Giriş yap</a>
+                        <a href="/register" class="button is-light">Hesap oluştur</a>
+                    </div>
+                {/if}
             </div>
             <div class="column">
                 <figure class="image">
