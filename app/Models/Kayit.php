@@ -15,4 +15,9 @@ class Kayit extends Model
     {
         return $this->hasMany(Dosya::class);
     }
+
+    public function sakin()
+    {
+        return $this->belongsTo(Sakin::class);
+    }
 }

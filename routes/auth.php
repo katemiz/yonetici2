@@ -48,6 +48,9 @@ Route::middleware('resident')->group(function () {
 
         return view('resident.dashboard', compact('resident', 'building'));
     })->name('resident.dashboard');
+    Route::get('resident-status/{section}', [\App\Http\Controllers\ResidentStatusController::class, 'show'])
+        ->where('section', 'ozet|alacaklar|gelirler|giderler')
+        ->name('resident.status');
     Route::post('resident-logout', [\App\Http\Controllers\Auth\ResidentSessionController::class, 'destroy'])
         ->name('resident.logout');
 });

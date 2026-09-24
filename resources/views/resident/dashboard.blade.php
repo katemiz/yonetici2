@@ -30,6 +30,12 @@
             <div class="notification is-info is-light">
                 Bu alan yalnızca görüntüleme içindir.
             </div>
+            <div class="buttons">
+                <a href="{{ route('resident.status', 'ozet') }}" class="button is-link is-light">Genel Durum</a>
+                <a href="{{ route('resident.status', 'alacaklar') }}" class="button is-link is-light">Alacaklar</a>
+                <a href="{{ route('resident.status', 'gelirler') }}" class="button is-link is-light">Gelirler</a>
+                <a href="{{ route('resident.status', 'giderler') }}" class="button is-link is-light">Giderler</a>
+            </div>
             <div class="box">
                 <p><strong>Telefon:</strong> {{ $resident->phone }}</p>
                 <p><strong>Kapı No:</strong> {{ $resident->door_no }}</p>
