@@ -66,6 +66,11 @@
                 <h1 class="title is-size-1">Akıllı Yönetici<br>Akıllı Uygulama</h1>
                 <p class="subtitle">Tüm işlemlerinizi cepten yönetin.</p>
                 <p>Site ve apartman yönetiminizi; aidat, gelir-gider, fatura ve karar kayıtlarını tek bir uygulamadan takip edin.</p>
+                {#if user && selected_bina}
+                    <div class="notification is-success is-light mt-5">
+                        <strong>Geçerli bina:</strong> {selected_bina}
+                    </div>
+                {/if}
                 {#if !user}
                     <div class="buttons mt-5">
                         <a href="/login" class="button is-link">Giriş yap</a>
