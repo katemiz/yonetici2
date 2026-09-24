@@ -19,6 +19,9 @@
 
         <!-- Other Actions Links -->
         <x-auth-actions action="login"/>
+        <a href="{{ route('resident.login') }}" class="button is-light is-fullwidth mt-3">
+            Bina sakini girişi
+        </a>
 
     </form>
 

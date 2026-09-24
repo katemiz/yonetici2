@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Hash;
 
 class BinaController extends Controller
 {
@@ -88,6 +89,9 @@ class BinaController extends Controller
         $props['pbirimi'] = $req->input('parabirimi');
         $props['address'] = $req->input('binaaddress');
         $props['city'] = $req->input('binacity');
+        $props['resident_access_code'] = $req->filled('resident_access_code')
+            ? Hash::make($req->input('resident_access_code'))
+            : null;
 
         Bina::create($props);
 
@@ -111,6 +115,9 @@ class BinaController extends Controller
         $props['pbirimi'] = $req->input('parabirimi');
         $props['address'] = $req->input('binaaddress');
         $props['city'] = $req->input('binacity');
+        if ($req->filled('resident_access_code')) {
+            $props['resident_access_code'] = Hash::make($req->input('resident_access_code'));
+        }
 
         Bina::find($req->id)->update($props);
 

@@ -56,6 +56,15 @@
                             <option value="34">İstanbul</option>
                             </select>
                         </div>
+
+                        <div class="field">
+                            <label class="label" for="resident_access_code">Bina sakini giriş kodu</label>
+                            <div class="control">
+                                <input class="input" id="resident_access_code" type="password"
+                                    name="resident_access_code" placeholder="Sakinlerin kullanacağı ortak kod">
+                            </div>
+                            <p class="help">Sakinler telefon numarası ve bu ortak kod ile yalnızca görüntüleme alanına giriş yapar.</p>
+                        </div>
                     </div>
                 </div>
 
