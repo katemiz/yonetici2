@@ -37,31 +37,54 @@ class BinaController extends Controller
     {
         $binalarim = $this->getBinalar();
 
-        $is_bina_selected = false;
-
         if (count($binalarim) == 0) {
             return Inertia::render('Dashboard', [
-                'is_bina_selected' => $is_bina_selected,
                 'bina_sayisi' => 0,
             ]);
         }
 
-        if (count($binalarim) == 1) {
-            
-            $this->selectActive($binalarim->first()->id);
+        $bina = $this->resolveActiveBina($binalarim);
 
-            $is_bina_selected = true;
-
-            return Inertia::render('Dashboard', [
-                'is_bina_selected' => $is_bina_selected,
-                'bina_sayisi' => 1,
-                'bina' => $binalarim->first(),
-            ]);
-        }
-
-        if (count($binalarim) > 1) {
+        if (!$bina) {
             return redirect()->route('binalar');
         }
+
+        return Inertia::render('Dashboard', [
+            'bina_sayisi' => $binalarim->count(),
+            'bina' => $bina->loadCount(['sakinler', 'kalemler', 'bedeller']),
+        ]);
+    }
+
+    public function welcome(Request $request)
+    {
+        if (!Auth::check()) {
+            return Inertia::render('Welcome');
+        }
+
+        $binalarim = $this->getBinalar();
+        $bina = $this->resolveActiveBina($binalarim);
+
+        return Inertia::render('Welcome', [
+            'bina_sayisi' => $binalarim->count(),
+            'bina' => $bina?->loadCount(['sakinler', 'kalemler', 'bedeller']),
+        ]);
+    }
+
+    private function resolveActiveBina($binalarim): ?Bina
+    {
+        if ($binalarim->isEmpty()) {
+            return null;
+        }
+
+        $selectedId = session('bina_id');
+        $bina = $selectedId ? $binalarim->firstWhere('id', (int) $selectedId) : null;
+
+        if (!$bina && $binalarim->count() === 1) {
+            $bina = $binalarim->first();
+            $this->selectActive($bina->id);
+        }
+
+        return $bina;
     }
 
     public function formBina(Request $request)

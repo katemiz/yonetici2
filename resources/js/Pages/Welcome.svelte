@@ -3,6 +3,8 @@
 
     export let auth = { user: null };
     export let selected_bina = null;
+    export let bina_sayisi = 0;
+    export let bina = null;
 
     $: user = auth?.user;
     $: userName = user ? `${user.name ?? ''} ${user.lastname ?? ''}`.trim() : '';
@@ -66,11 +68,6 @@
                 <h1 class="title is-size-1">Akıllı Yönetici<br>Akıllı Uygulama</h1>
                 <p class="subtitle">Tüm işlemlerinizi cepten yönetin.</p>
                 <p>Site ve apartman yönetiminizi; aidat, gelir-gider, fatura ve karar kayıtlarını tek bir uygulamadan takip edin.</p>
-                {#if user && selected_bina}
-                    <div class="notification is-success is-light mt-5">
-                        <strong>Geçerli bina:</strong> {selected_bina}
-                    </div>
-                {/if}
                 {#if !user}
                     <div class="buttons mt-5">
                         <a href="/login" class="button is-link">Giriş yap</a>
@@ -84,6 +81,25 @@
                 </figure>
             </div>
         </div>
+        {#if user}
+            <section class="mt-6">
+                <h2 class="title is-4">Geçerli bina</h2>
+                {#if bina_sayisi === 0}
+                    <div class="notification is-warning is-light">Tanımlı bir bina bulunmamaktadır.</div>
+                    <a href="/bina-form" class="button is-link">Bina Ekle</a>
+                {:else if bina}
+                    <div class="box">
+                        <h3 class="title is-5">{bina.name}</h3>
+                        <p>Adres: {bina.address}, {bina.city}</p>
+                        <p class="mt-2">Bina sakinleri, bedeller ve harcamaları yönetebilirsiniz.</p>
+                        <a href="/dashboard" class="button is-link is-light mt-4">Bina özelliklerini görüntüle</a>
+                    </div>
+                {:else}
+                    <div class="notification is-info is-light">Bir bina seçmek için Binalarım sayfasını açın.</div>
+                    <a href="/bina-list" class="button is-link">Binalarım</a>
+                {/if}
+            </section>
+        {/if}
     </div>
 </main>
 

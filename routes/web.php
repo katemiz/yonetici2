@@ -37,9 +37,7 @@ use App\Http\Controllers\PDFController;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-});
+Route::get('/', [BinaController::class, 'welcome']);
 
 Route::get('lang/{lang}', [
     'as' => 'lang.switch',

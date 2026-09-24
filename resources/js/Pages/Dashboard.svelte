@@ -1,5 +1,4 @@
 <script>
-    export let bina_sayisi = 0;
     export let bina = null;
     export let auth = { user: null };
     export let selected_bina = null;
@@ -80,15 +79,32 @@
 
 <main class="section">
     <div class="container">
-        <h1 class="title">Hoşgeldiniz</h1>
-        {#if bina_sayisi === 0}
+        {#if !bina}
+            <h1 class="title">Gösterge Paneli</h1>
             <div class="notification is-warning is-light">Tanımlı bir bina bulunmamaktadır.</div>
             <a href="/bina-form" class="button is-link">Bina Ekle</a>
         {:else}
-            <div class="notification is-success is-light">
-                {bina?.name ?? 'Geçerli bina'}
+            <h1 class="title">{bina.name}</h1>
+            <h2 class="subtitle">Geçerli bina özellikleri</h2>
+            <div class="box">
+                <div class="content">
+                    <p><strong>Adres:</strong> {bina.address}</p>
+                    <p><strong>Şehir:</strong> {bina.city}</p>
+                    <p><strong>Para birimi:</strong> {bina.pbirimi}</p>
+                    <p><strong>Bina sakinleri:</strong> {bina.sakinler_count}</p>
+                    <p><strong>Hizmet bedelleri:</strong> {bina.bedeller_count}</p>
+                    <p><strong>Harcama türleri:</strong> {bina.kalemler_count}</p>
+                    <p>
+                        <strong>Ortak giriş kodu:</strong>
+                        {#if bina.resident_access_code}
+                            <span class="has-text-success"> Yapılandırılmış</span>
+                        {:else}
+                            <span class="has-text-warning-dark"> Tanımlanmamış</span>
+                        {/if}
+                    </p>
+                </div>
+                <a href={`/bina-view/${bina.id}`} class="button is-link is-light">Bina ayrıntıları</a>
             </div>
-            <p>Geçerli binanızın sakin, bedel ve harcama kayıtlarını yönetebilirsiniz.</p>
         {/if}
     </div>
 </main>
