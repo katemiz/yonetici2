@@ -11,6 +11,7 @@ use App\Models\Sakin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class KayitController extends Controller
 {
@@ -72,11 +73,12 @@ class KayitController extends Controller
 
     public function kayitAdd(Request $req)
     {
-        // $req->validate([
-        //     'aciklama' => 'required|string|min:10',
-        //     'tutar' => 'required|numeric|gt:0',
-        //     'sonodeme' => 'required|date',
-        // ]);
+        $req->validate([
+            'spending_category' => [
+                Rule::requiredIf(in_array($req->tur, ['gider', 'fatura'], true)),
+                Rule::in(Kayit::SPENDING_CATEGORIES),
+            ],
+        ]);
 
         $props['user_id'] = Auth::id();
         $props['bina_id'] = session('bina_id');
@@ -143,6 +145,7 @@ class KayitController extends Controller
 
         if ($req->tur == 'fatura') {
             $props['tur'] = 'verecek';
+            $props['spending_category'] = $req->input('spending_category');
             $props['aciklama'] = $req->input('aciklama');
             $props['donem'] = '';
             $props['tutar'] = $tutar;
@@ -156,6 +159,7 @@ class KayitController extends Controller
 
         if ($req->tur == 'gider') {
             $props['tur'] = 'gider';
+            $props['spending_category'] = $req->input('spending_category');
             $props['aciklama'] = $req->input('aciklama');
             $props['donem'] = '';
             $props['tutar'] = $tutar;

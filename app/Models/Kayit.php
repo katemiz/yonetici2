@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Kayit extends Model
 {
+    public const SPENDING_CATEGORIES = [
+        'Isunma',
+        'Su',
+        'Elektrik',
+        'Temizlik',
+        'Diğer',
+    ];
+
     use HasFactory;
     protected $guarded = [];
     protected $table = 'kayitlar';

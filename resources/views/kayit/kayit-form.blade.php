@@ -134,7 +134,7 @@
             @endif
 
 
-            @if ($tur == 'gider')
+            @if ($tur == 'gider' || $tur == 'fatura')
                 <h1 class="title mt-6 has-text-weight-light is-size-1 has-text-left">{{ $kayit ? 'Gider Kaydı Güncelle' :'Gider Kaydı Ekle' }}</h1>
                 <h2 class="subtitle">Gider Kaydı</h2>
             @endif
@@ -226,6 +226,27 @@
 
                         </div>
                     </div>
+
+                    @if ($tur == 'gider' || $tur == 'fatura')
+                    <div class="column field">
+                        <label class="label" for="spending_category">Harcama Kategorisi</label>
+                        <div class="control">
+                            <div class="select is-fullwidth">
+                                <select name="spending_category" id="spending_category" required>
+                                    <option value="">Kategori seçiniz</option>
+                                    @foreach (\App\Models\Kayit::SPENDING_CATEGORIES as $category)
+                                        <option value="{{ $category }}" @selected(old('spending_category', $kayit ? $kayit->spending_category : '') === $category)>
+                                            {{ $category }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        @error('spending_category')
+                            <p class="help has-text-danger">Harcama kategorisi seçilmelidir.</p>
+                        @enderror
+                    </div>
+                    @endif
 
                     <div class="column field">
 
