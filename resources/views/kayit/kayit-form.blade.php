@@ -168,7 +168,7 @@
                     <div class="control">
                         <div class="select" >
                             <select name="borclu">
-                                @foreach ($bina->sakinler as $sakin )
+                                @foreach ($tur == 'alacak' ? $bina->active_sakinler : $bina->sakinler as $sakin)
                                     <option value="{{$sakin->id}}">[ No {{ $sakin->door_no}} ] {{$sakin->name}} {{$sakin->lastname}} </option>
                                 @endforeach
                             </select>
