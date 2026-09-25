@@ -44,7 +44,7 @@
                     </div>
                 </div>
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a href="/dokum" class="navbar-link"><i class="fa-solid fa-print menu-icon" aria-hidden="true"></i>Yazdır</a>
+                    <a href="/dokum" class="navbar-link"><i class="fa-regular fa-file-lines menu-icon" aria-hidden="true"></i>Yazdır</a>
                     <div class="navbar-dropdown">
                         <a href="/dokum" class="navbar-item">Gelir-Gider Döküm</a>
                         <a href="/aylik-aidatlar" class="navbar-item">Aylık Aidatlar</a>
