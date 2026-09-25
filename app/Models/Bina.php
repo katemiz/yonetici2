@@ -23,7 +23,9 @@ class Bina extends Model
 
     public function active_sakinler()
     {
-        return $this->hasMany(Sakin::class)->where('is_active','=',1);
+        return $this->hasMany(Sakin::class)
+            ->where('is_active', '=', 1)
+            ->orderBy('door_no');
     }
 
 
