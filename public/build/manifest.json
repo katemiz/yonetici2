@@ -1,45 +1,41 @@
 {
-  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2": {
-    "file": "assets/fa-brands-400-BfBXV7Mm.woff2",
-    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2"
-  },
-  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2": {
-    "file": "assets/fa-regular-400-BVHPE7da.woff2",
-    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2"
-  },
-  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2": {
-    "file": "assets/fa-solid-900-8GirhLYJ.woff2",
-    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2"
-  },
-  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2": {
-    "file": "assets/fa-v4compatibility-DnhYSyY-.woff2",
-    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2"
+  "_globals-D0QH3NT1.js": {
+    "file": "assets/globals-D0QH3NT1.js",
+    "name": "globals"
   },
   "resources/css/app.css": {
-    "file": "assets/app-CpSCjz4k.css",
+    "file": "assets/app-BfMr1c8t.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/Pages/Dashboard.svelte": {
-    "file": "assets/Dashboard-CmbHWnnv.js",
+    "file": "assets/Dashboard-mzNQqpGX.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Dashboard.svelte",
     "isDynamicEntry": true,
     "imports": [
-      "resources/js/app.js"
+      "resources/js/app.js",
+      "_globals-D0QH3NT1.js"
+    ],
+    "css": [
+      "assets/Dashboard-BR_GXgVo.css"
     ]
   },
   "resources/js/Pages/Welcome.svelte": {
-    "file": "assets/Welcome-D90UxEkh.js",
+    "file": "assets/Welcome-CWVMO0m5.js",
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.svelte",
     "isDynamicEntry": true,
     "imports": [
-      "resources/js/app.js"
+      "resources/js/app.js",
+      "_globals-D0QH3NT1.js"
+    ],
+    "css": [
+      "assets/Welcome-DhhAGtxQ.css"
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-avnFHA0P.js",
+    "file": "assets/app-D_LoMybj.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,

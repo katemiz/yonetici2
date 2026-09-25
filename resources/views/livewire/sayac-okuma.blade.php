@@ -16,7 +16,7 @@
                     wire:click="setActiveSayacTab({{ $sayacTur['id'] }})">
                     <a>
                         <span class="icon is-small">
-                            <i class="fa-solid fa-scale-balanced"></i>
+                            <x-icon icon="settings" />
                         </span>
                         <span>{{ $sayacTur['title'] }}</span>
                     </a>
@@ -47,7 +47,7 @@
                             <div class="cell has-text-right has-text-left-mobile">
                                 <button wire:click="yeniOkuma({{ $sayacTur['id'] }},{{ $sakin['id'] }})" class="button is-link">
                                     <span class="icon">
-                                        <i class="fa-regular fa-square-plus"></i>
+                                        <x-icon icon="plus" />
                                     </span>
                                     <span>Sayaç Okuma Ekle</span>
                                 </button>
@@ -104,7 +104,7 @@
                                                         wire:click="bedelGor({{ $sayacTur['id'] }},{{ $okuma['id'] }},{{ $okuma['sakin_id'] }})"
                                                         class="button">
                                                         <span class="icon">
-                                                            <i class="fa-solid fa-barcode"></i>
+                                                            <x-icon icon="reading" />
                                                         </span>
                                                         <span>Bedel</span>
                                                     </button>
@@ -236,7 +236,7 @@
                         <div class="media">
                             <div class="media-left">
                                 <figure class="image is-48x48">
-                                    <i class="fa-solid fa-barcode"></i>
+                                    <x-icon icon="reading" />
                                 </figure>
                             </div>
                             <div class="media-content">

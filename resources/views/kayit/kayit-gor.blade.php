@@ -15,7 +15,7 @@
                 <div class="cell has-text-right">
 
                     <a href="/makbuzpdf/{{ $kayit['id'] }}" class="icon mr-6" aria-label="PDF indir">
-                        <i class="fa-regular fa-file-pdf"></i>
+                        <x-icon icon="file" />
                     </a>
 
 

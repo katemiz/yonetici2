@@ -1,4 +1,15 @@
 <script>
+    import {
+        Banknote,
+        Building2,
+        ChartBar,
+        CircleHelp,
+        FileText,
+        LogOut,
+        Printer,
+        SquarePen,
+    } from 'lucide-svelte';
+
     export let bina = null;
     export let auth = { user: null };
     export let selected_bina = null;
@@ -22,18 +33,18 @@
         <div class="navbar-menu is-active">
             <div class="navbar-start">
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a href="/durum/ozet" class="navbar-link"><i class="fa-regular fa-chart-bar menu-icon" aria-hidden="true"></i>Durum</a>
+                    <a href="/durum/ozet" class="navbar-link"><ChartBar class="menu-icon" aria-hidden="true" />Durum</a>
                     <div class="navbar-dropdown">
                         <a href="/durum/ozet" class="navbar-item">Genel Özet</a>
                         <a href="/durum/alacaklar" class="navbar-item">Alacaklar</a>
                         <a href="/durum/verecekler" class="navbar-item">Verecekler</a>
                     </div>
                 </div>
-                <a href="/durum/gelirler" class="navbar-item"><i class="fa-regular fa-money-bill-1 menu-icon" aria-hidden="true"></i>Gelir</a>
-                <a href="/durum/giderler" class="navbar-item"><i class="fa-regular fa-money-bill-1 menu-icon" aria-hidden="true"></i>Gider</a>
-                <a href="/durum/verecekler" class="navbar-item"><i class="fa-regular fa-file-lines menu-icon" aria-hidden="true"></i>Faturalar</a>
+                <a href="/durum/gelirler" class="navbar-item"><Banknote class="menu-icon" aria-hidden="true" />Gelir</a>
+                <a href="/durum/giderler" class="navbar-item"><Banknote class="menu-icon" aria-hidden="true" />Gider</a>
+                <a href="/durum/verecekler" class="navbar-item"><FileText class="menu-icon" aria-hidden="true" />Faturalar</a>
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a href="/kayit-form/aidat" class="navbar-link"><i class="fa-regular fa-pen-to-square menu-icon" aria-hidden="true"></i>Kayıtlar</a>
+                    <a href="/kayit-form/aidat" class="navbar-link"><SquarePen class="menu-icon" aria-hidden="true" />Kayıtlar</a>
                     <div class="navbar-dropdown">
                         <a href="/kayit-form/aidat" class="navbar-item">Toplu Aidat Kaydı</a>
                         <a href="/kayit-form/alacak" class="navbar-item">Alacak Kaydı</a>
@@ -44,7 +55,7 @@
                     </div>
                 </div>
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a href="/dokum" class="navbar-link"><i class="fa-regular fa-file-lines menu-icon" aria-hidden="true"></i>Yazdır</a>
+                    <a href="/dokum" class="navbar-link"><Printer class="menu-icon" aria-hidden="true" />Yazdır</a>
                     <div class="navbar-dropdown">
                         <a href="/dokum" class="navbar-item">Gelir-Gider Döküm</a>
                         <a href="/aylik-aidatlar" class="navbar-item">Aylık Aidatlar</a>
@@ -62,12 +73,12 @@
                         {/if}
                     </a>
                     <div class="navbar-dropdown is-right">
-                        <a href="/bina-list" class="navbar-item"><i class="fa-regular fa-building menu-icon" aria-hidden="true"></i>Binalarım</a>
-                        <a href="/help" class="navbar-item"><i class="fa-regular fa-circle-question menu-icon" aria-hidden="true"></i>Yardım</a>
+                        <a href="/bina-list" class="navbar-item"><Building2 class="menu-icon" aria-hidden="true" />Binalarım</a>
+                        <a href="/help" class="navbar-item"><CircleHelp class="menu-icon" aria-hidden="true" />Yardım</a>
                         <form method="POST" action="/logout">
                             <input type="hidden" name="_token" value={document.querySelector('meta[name=csrf-token]').content}>
                             <button class="navbar-item button is-white is-fullwidth has-text-left" type="submit">
-                                <i class="fa-regular fa-circle-right menu-icon" aria-hidden="true"></i>Çıkış
+                                <LogOut class="menu-icon" aria-hidden="true" />Çıkış
                             </button>
                         </form>
                     </div>
@@ -121,5 +132,7 @@
         font-size: 1.15em;
         margin-right: 0.4rem;
         width: 1.2em;
+        height: 1.2em;
+        flex: 0 0 auto;
     }
 </style>

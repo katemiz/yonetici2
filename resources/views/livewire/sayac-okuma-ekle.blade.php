@@ -21,7 +21,7 @@
                     <div class="cell has-text-right">
                         <button wire:click="yeniOkuma({{ $sakin['id'] }})" class="button is-link">
                             <span class="icon">
-                                <i class="fa-regular fa-square-plus"></i>
+                                <x-icon icon="plus" />
                             </span>
                             <span>Sayaç Okuma Ekle</span>
                         </button>
