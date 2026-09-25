@@ -25,7 +25,8 @@ class Bina extends Model
     {
         return $this->hasMany(Sakin::class)
             ->where('is_active', '=', 1)
-            ->orderBy('id');
+            ->orderBy('door_no', 'asc')
+            ->orderBy('id', 'asc');
     }
 
 
