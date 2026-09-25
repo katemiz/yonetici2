@@ -1,46 +1,27 @@
 {
-  "_globals-D0QH3NT1.js": {
-    "file": "assets/globals-D0QH3NT1.js",
-    "name": "globals"
-  },
   "resources/css/app.css": {
     "file": "assets/app-BfMr1c8t.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
-  "resources/js/Pages/Dashboard.svelte": {
-    "file": "assets/Dashboard-mzNQqpGX.js",
-    "name": "Dashboard",
-    "src": "resources/js/Pages/Dashboard.svelte",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/app.js",
-      "_globals-D0QH3NT1.js"
-    ],
-    "css": [
-      "assets/Dashboard-BR_GXgVo.css"
-    ]
-  },
   "resources/js/Pages/Welcome.svelte": {
-    "file": "assets/Welcome-CWVMO0m5.js",
+    "file": "assets/Welcome-82j6OBbt.js",
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.svelte",
     "isDynamicEntry": true,
     "imports": [
-      "resources/js/app.js",
-      "_globals-D0QH3NT1.js"
+      "resources/js/app.js"
     ],
     "css": [
-      "assets/Welcome-DhhAGtxQ.css"
+      "assets/Welcome-BR_GXgVo.css"
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-D_LoMybj.js",
+    "file": "assets/app-BHgRkFTZ.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
-      "resources/js/Pages/Dashboard.svelte",
       "resources/js/Pages/Welcome.svelte"
     ]
   }

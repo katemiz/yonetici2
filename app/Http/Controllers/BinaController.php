@@ -33,28 +33,6 @@ class BinaController extends Controller
         ]);
     }
 
-    public function dashboard(Request $request)
-    {
-        $binalarim = $this->getBinalar();
-
-        if (count($binalarim) == 0) {
-            return Inertia::render('Dashboard', [
-                'bina_sayisi' => 0,
-            ]);
-        }
-
-        $bina = $this->resolveActiveBina($binalarim);
-
-        if (!$bina) {
-            return redirect()->route('binalar');
-        }
-
-        return Inertia::render('Dashboard', [
-            'bina_sayisi' => $binalarim->count(),
-            'bina' => $bina->loadCount(['sakinler', 'kalemler', 'bedeller']),
-        ]);
-    }
-
     public function welcome(Request $request)
     {
         if (!Auth::check()) {

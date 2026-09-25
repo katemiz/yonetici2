@@ -44,16 +44,6 @@ Route::get('lang/{lang}', [
     'uses' => 'App\Http\Controllers\LanguageController@switchLang',
 ]);
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })
-//     ->middleware(['auth', 'verified'])
-//     ->name('dashboard');
-
-Route::get('/dashboard', [BinaController::class, 'dashboard'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
 require __DIR__ . '/auth.php';
 
 Route::middleware(['auth'])->group(function () {

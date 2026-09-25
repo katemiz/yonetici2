@@ -24,12 +24,6 @@
 
                 @if(Auth::check())
 
-                    {{-- <a href="/dashboard" class="navbar-item has-text-info">
-                        <span class="icon ">
-                            <x-icon icon="home" fill="{{config('constants.icons.color.light')}}" />
-                        </span>
-                    </a> --}}
-
                     <div class="navbar-item has-dropdown is-hoverable">
                         <p class="navbar-link" href="/durum/ozet">Durum</p>
                         <div class="navbar-dropdown has-text-info">

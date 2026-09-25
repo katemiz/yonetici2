@@ -1,5 +1,15 @@
 <script>
     import { Link } from '@inertiajs/svelte';
+    import {
+        Banknote,
+        Building2,
+        ChartBar,
+        CircleHelp,
+        FileText,
+        LogOut,
+        Printer,
+        SquarePen,
+    } from 'lucide-svelte';
 
     export let auth = { user: null };
     export let selected_bina = null;
@@ -24,12 +34,19 @@
         {#if user}
             <div class="navbar-menu is-active">
                 <div class="navbar-start">
-                    <a href="/dashboard" class="navbar-item">Gösterge Paneli</a>
-                    <a href="/durum/gelirler" class="navbar-item">Gelir</a>
-                    <a href="/durum/giderler" class="navbar-item">Gider</a>
-                    <a href="/durum/verecekler" class="navbar-item">Faturalar</a>
-                    <a href="/kayit-form/aidat" class="navbar-item">Kayıtlar</a>
-                    <a href="/dokum" class="navbar-item">Yazdır</a>
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a href="/durum/ozet" class="navbar-link"><ChartBar class="menu-icon" aria-hidden="true" />Durum</a>
+                        <div class="navbar-dropdown">
+                            <a href="/durum/ozet" class="navbar-item">Genel Özet</a>
+                            <a href="/durum/alacaklar" class="navbar-item">Alacaklar</a>
+                            <a href="/durum/verecekler" class="navbar-item">Verecekler</a>
+                        </div>
+                    </div>
+                    <a href="/durum/gelirler" class="navbar-item"><Banknote class="menu-icon" aria-hidden="true" />Gelir</a>
+                    <a href="/durum/giderler" class="navbar-item"><Banknote class="menu-icon" aria-hidden="true" />Gider</a>
+                    <a href="/durum/verecekler" class="navbar-item"><FileText class="menu-icon" aria-hidden="true" />Faturalar</a>
+                    <a href="/kayit-form/aidat" class="navbar-item"><SquarePen class="menu-icon" aria-hidden="true" />Kayıtlar</a>
+                    <a href="/dokum" class="navbar-item"><Printer class="menu-icon" aria-hidden="true" />Yazdır</a>
                 </div>
                 <div class="navbar-end">
                     <div class="navbar-item has-dropdown is-hoverable">
@@ -40,12 +57,12 @@
                             {/if}
                         </a>
                         <div class="navbar-dropdown is-right">
-                            <a href="/bina-list" class="navbar-item">Binalarım</a>
-                            <a href="/help" class="navbar-item">Yardım</a>
+                            <a href="/bina-list" class="navbar-item"><Building2 class="menu-icon" aria-hidden="true" />Binalarım</a>
+                            <a href="/help" class="navbar-item"><CircleHelp class="menu-icon" aria-hidden="true" />Yardım</a>
                             <form method="POST" action="/logout">
                                 <input type="hidden" name="_token" value={document.querySelector('meta[name=csrf-token]').content}>
                                 <button class="navbar-item button is-white is-fullwidth has-text-left" type="submit">
-                                    Çıkış
+                                    <LogOut class="menu-icon" aria-hidden="true" />Çıkış
                                 </button>
                             </form>
                         </div>
@@ -92,7 +109,7 @@
                         <h3 class="title is-5">{bina.name}</h3>
                         <p>Adres: {bina.address}, {bina.city}</p>
                         <p class="mt-2">Bina sakinleri, bedeller ve harcamaları yönetebilirsiniz.</p>
-                        <a href="/dashboard" class="button is-link is-light mt-4">Bina özelliklerini görüntüle</a>
+                        <a href={`/bina-view/${bina.id}`} class="button is-link is-light mt-4">Bina özelliklerini görüntüle</a>
                     </div>
                 {:else}
                     <div class="notification is-info is-light">Bir bina seçmek için Binalarım sayfasını açın.</div>
@@ -108,5 +125,14 @@
         align-items: flex-end;
         flex-direction: column;
         justify-content: center;
+    }
+
+    :global(.menu-icon) {
+        color: hsl(217, 71%, 35%);
+        font-size: 1.15em;
+        margin-right: 0.4rem;
+        width: 1.2em;
+        height: 1.2em;
+        flex: 0 0 auto;
     }
 </style>
