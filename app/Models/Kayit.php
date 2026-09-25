@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Kayit extends Model
 {
     public const SPENDING_CATEGORIES = [
-        'Isunma',
+        'Isınma',
         'Su',
         'Elektrik',
         'Temizlik',
