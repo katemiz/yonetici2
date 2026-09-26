@@ -16,6 +16,12 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'selected_bina' => $request->session()->get('selected_bina'),
+            'app' => [
+                'company' => config('constants.company'),
+                'title' => config('constants.app.title'),
+                'copyright' => config('constants.app.copyright'),
+                'version' => config('constants.app.version'),
+            ],
         ]);
     }
 }

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 
 class KayitController extends Controller
 {
@@ -51,6 +52,15 @@ class KayitController extends Controller
 
     public function kayitForm(Request $request)
     {
+        if ($request->tur === 'gelir') {
+            return Inertia::render('GelirForm', [
+                'bina' => [
+                    'name' => $this->bina->name,
+                    'pbirimi' => $this->bina->pbirimi,
+                ],
+            ]);
+        }
+
         return view('kayit.kayit-form', [
             'bina' => $this->bina,
             'kayit' => $this->kayit,
