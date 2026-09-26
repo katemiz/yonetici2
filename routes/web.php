@@ -4,6 +4,7 @@ use App\Http\Controllers\BedelController;
 use App\Http\Controllers\BinaController;
 use App\Http\Controllers\DokumController;
 use App\Http\Controllers\DosyaController;
+use App\Http\Controllers\DurumController;
 use App\Http\Controllers\KalemController;
 use App\Http\Controllers\KayitController;
 use App\Http\Controllers\OkumaController;
@@ -113,6 +114,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/kayit-dosya-gor/{id}', [DosyaController::class, 'dosya']);
     Route::get('/select-active/{id}', [BinaController::class, 'selectActive']);
+    Route::get('/durum/ozet', [DurumController::class, 'summary'])->name('durum.summary');
+    Route::get('/durum/alacaklar', [DurumController::class, 'receivables'])->name('durum.receivables');
+    Route::post('/durum/alacaklar/{id}/received', [DurumController::class, 'markReceivableReceived']);
+    Route::get('/durum/gelirler', [DurumController::class, 'incomes'])->name('durum.incomes');
     Route::get('/durum/{tur}', DurumList::class)->name('durum');
     Route::get('/dokum', [DokumController::class, 'dokum'])->name('dokum');
     //Route::get('/dokum', [PDFController::class, 'dokum']);
