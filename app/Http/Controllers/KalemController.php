@@ -54,6 +54,17 @@ class KalemController extends Controller
         ]);
     }
 
+    public function destroy(int $id, int $kalemid)
+    {
+        $bina = Bina::query()
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
+        $bina->kalemler()->findOrFail($kalemid)->delete();
+
+        return redirect()->route('kalemler', ['id' => $bina->id])
+            ->with('success', 'Harcama kalem tanımı silinmiştir.');
+    }
+
     // public function getKalemler($id)
     // {
     //     return Kalem::query()

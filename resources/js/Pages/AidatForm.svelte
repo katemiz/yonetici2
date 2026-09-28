@@ -3,11 +3,10 @@
     import { FileUp } from '@lucide/svelte';
     import Layout from './Shared/Layout.svelte';
 
-    let { bina, kayit = null, errors = {} } = $props();
+    let { bina, residents, period } = $props();
     let notes = $state('');
     let files = $state([]);
     let editorError = $state('');
-
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
     onMount(() => {
@@ -25,11 +24,7 @@
                 });
             }
 
-            editor = await window.ClassicEditor.create(document.querySelector('#income-notes'));
-            if (kayit?.remarks) {
-                editor.setData(kayit.remarks);
-                notes = kayit.remarks;
-            }
+            editor = await window.ClassicEditor.create(document.querySelector('#aidat-notes'));
             if (cancelled) {
                 await editor.destroy();
                 return;
@@ -57,54 +52,47 @@
 </script>
 
 <svelte:head>
-    <title>{kayit ? 'Gelir Kaydı Güncelle' : 'Gelir Kaydı Ekle'} - {bina?.name ?? 'Akıllı Yönetici'}</title>
+    <title>Aylık Ödeme - Aidatlar - {bina?.name ?? 'Akıllı Yönetici'}</title>
 </svelte:head>
 
 <Layout>
     <main class="section container">
-        <h1 class="title mt-6 has-text-weight-light is-size-1 has-text-left">
-            {kayit ? 'Gelir Kaydı Güncelle' : 'Gelir Kaydı Ekle'}
-        </h1>
-        <h2 class="subtitle">Gelir Kaydı</h2>
+        <h1 class="title mt-6 has-text-weight-light is-size-1 has-text-left">Aylık Ödeme - Aidatlar</h1>
+        <h2 class="subtitle">Toplu Aidat Kaydı Oluşturma</h2>
 
-        <form action={kayit ? `/kayit-update/gelir/${kayit.id}` : '/kayit-add/gelir'} method="POST" enctype="multipart/form-data">
+        <form action="/kayit-add/aidat" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="_token" value={csrfToken}>
             <input type="hidden" name="editor_data" value={notes}>
 
             <div class="box">
-                <div class="columns">
-                    <div class="column field is-half">
-                        <label class="label" for="description">Açıklama</label>
-                        <div class="control">
-                            <input
-                                class="input"
-                                id="description"
-                                name="aciklama"
-                                type="text"
-                                placeholder="Açıklama"
-                                required
-                                value={kayit?.aciklama ?? ''}
-                            >
-                        </div>
-                        {#if errors.aciklama}
-                            <p class="help has-text-danger">{errors.aciklama[0]}</p>
-                        {/if}
+                <div class="column field">
+                    <label class="label" for="period">Ait olduğu dönem</label>
+                    <div class="control">
+                        <input class="input" id="period" type="date" name="donem" value={period} required>
                     </div>
+                </div>
 
-                    <div class="column field">
-                        <label class="label" for="amount">Tutar, {bina.pbirimi}</label>
-                        <div class="control">
-                            <input class="input" id="amount" name="tutar" type="text" placeholder="650,25 örnek" required value={kayit?.tutar ?? ''}>
-                        </div>
-                        {#if errors.tutar}
-                            <p class="help has-text-danger">{errors.tutar[0]}</p>
-                        {/if}
+                <div class="column">
+                    <div class="table-container">
+                        <table class="table is-fullwidth">
+                            <tbody>
+                                {#each residents as resident}
+                                    <tr>
+                                        <td>{resident.door_no}</td>
+                                        <td>{resident.name}</td>
+                                        <td>{resident.lastname}</td>
+                                        <td>Aylık aidat ödemesi</td>
+                                        <td>{resident.amount}</td>
+                                    </tr>
+                                {/each}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                 <div class="field" id="ck">
-                    <label class="label" for="income-notes">Notlar</label>
-                    <div class="column" id="income-notes"></div>
+                    <label class="label" for="aidat-notes">Notlar</label>
+                    <div class="column" id="aidat-notes"></div>
                     {#if editorError}
                         <p class="help has-text-danger" role="alert">{editorError}</p>
                     {/if}
@@ -123,7 +111,6 @@
                                 </label>
                             </div>
                         </div>
-
                         <div class="column">
                             <table class="table is-striped is-fullwidth">
                                 <tbody>
@@ -137,9 +124,7 @@
                                 </tbody>
                                 {#if files.length === 0}
                                     <tfoot>
-                                        <tr>
-                                            <td colspan="4" class="has-text-centered">Henüz seçilmiş dosya yok!</td>
-                                        </tr>
+                                        <tr><td colspan="4" class="has-text-centered">Henüz seçilmiş dosya yok!</td></tr>
                                     </tfoot>
                                 {/if}
                             </table>
@@ -148,7 +133,7 @@
                 </div>
 
                 <div class="buttons is-right">
-                    <button class="button is-link" type="submit">{kayit ? 'Güncelle' : 'Kaydet'}</button>
+                    <button class="button is-link" type="submit">Kaydet</button>
                 </div>
             </div>
         </form>

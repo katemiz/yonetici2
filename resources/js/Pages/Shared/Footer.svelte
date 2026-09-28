@@ -20,6 +20,9 @@
 
         <div class="column has-text-centered has-text-centered-mobile">
             {app.title ?? 'Bina Yönetim Sistemi'}
+            <p class="has-text-weight-light is-size-7">
+                Laravel-Inertia-Svelte-Bulma Uygulaması
+            </p>
         </div>
 
         <div class="column has-text-right has-text-centered-mobile">

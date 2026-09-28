@@ -25,11 +25,119 @@ class BinaController extends Controller
             ->get();
     }
 
-    public function binalar()
+    public function index(Request $request)
     {
-        return view('bina.bina-list', [
-            'notification' => false,
-            'binalar' => $this->getBinalar(),
+        $sort = $request->query('sort', 'created_at');
+        $direction = $request->query('direction', 'desc');
+        abort_unless(in_array($sort, ['name', 'created_at'], true), 422);
+        abort_unless(in_array($direction, ['asc', 'desc'], true), 422);
+
+        $binalar = Bina::query()
+            ->where('user_id', Auth::id())
+            ->when($request->filled('search'), fn ($query) => $query->where(
+                'name',
+                'like',
+                '%' . $request->string('search') . '%'
+            ))
+            ->orderBy($sort, $direction)
+            ->paginate(Config::get('constants.table.no_of_results'))
+            ->withQueryString();
+        $binalar->getCollection()->transform(fn (Bina $bina) => [
+            'id' => $bina->id,
+            'name' => $bina->name,
+            'created_at' => $bina->created_at?->format('d.m.Y H:i'),
+        ]);
+
+        return Inertia::render('BinaList', [
+            'binalar' => $binalar,
+            'selectedBinaId' => session('bina_id'),
+            'search' => $request->query('search', ''),
+            'sort' => $sort,
+            'direction' => $direction,
+            'success' => session('success'),
+        ]);
+    }
+
+    public function view(int $id)
+    {
+        $bina = Bina::query()
+            ->where('user_id', Auth::id())
+            ->withCount(['sakinler', 'kalemler', 'bedeller'])
+            ->findOrFail($id);
+
+        return Inertia::render('BinaView', [
+            'bina' => [
+                'id' => $bina->id,
+                'name' => $bina->name,
+                'address' => $bina->address,
+                'city' => $bina->city,
+                'pbirimi' => $bina->pbirimi,
+                'resident_access_configured' => !empty($bina->resident_access_code),
+                'created_at' => $bina->created_at?->format('d.m.Y H:i'),
+                'created_human' => $bina->carbon_created_at,
+                'sakinler_count' => $bina->sakinler_count,
+                'kalemler_count' => $bina->kalemler_count,
+                'bedeller_count' => $bina->bedeller_count,
+            ],
+        ]);
+    }
+
+    public function bedelList(Request $request, int $id)
+    {
+        $bina = Bina::query()
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
+        $bedeller = $bina->bedeller()
+            ->orderBy('created_at', 'desc')
+            ->paginate(Config::get('constants.table.no_of_results'))
+            ->withQueryString();
+        $bedeller->getCollection()->transform(fn ($bedel) => [
+            'id' => $bedel->id,
+            'title' => $bedel->title,
+            'type' => $bedel->tur,
+            'unit' => $bedel->unit,
+            'amount' => $bedel->bedel,
+            'created_at' => $bedel->created_at?->format('d.m.Y H:i'),
+        ]);
+
+        return Inertia::render('BedelList', [
+            'bina' => ['id' => $bina->id, 'name' => $bina->name],
+            'bedeller' => $bedeller,
+        ]);
+    }
+
+    public function kalemList(Request $request, int $id)
+    {
+        $bina = Bina::query()
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
+        $sort = $request->query('sort', 'created_at');
+        $direction = $request->query('direction', 'desc');
+        abort_unless(in_array($sort, ['title', 'created_at'], true), 422);
+        abort_unless(in_array($direction, ['asc', 'desc'], true), 422);
+
+        $kalemler = $bina->kalemler()
+            ->when($request->filled('search'), fn ($query) => $query->where(
+                'title',
+                'like',
+                '%' . $request->string('search') . '%'
+            ))
+            ->orderBy($sort, $direction)
+            ->paginate(Config::get('constants.table.no_of_results'))
+            ->withQueryString();
+        $kalemler->getCollection()->transform(fn ($kalem) => [
+            'id' => $kalem->id,
+            'title' => $kalem->title,
+            'created_at' => $kalem->created_at?->format('d.m.Y H:i'),
+        ]);
+
+        return Inertia::render('KalemList', [
+            'bina' => ['id' => $bina->id, 'name' => $bina->name],
+            'kalemler' => $kalemler,
+            'search' => $request->query('search', ''),
+            'sort' => $sort,
+            'direction' => $direction,
+            'success' => session('success'),
         ]);
     }
 
@@ -100,17 +208,7 @@ class BinaController extends Controller
 
         Bina::create($props);
 
-        $q = $this->getBinalar();
-
-        return view('bina.bina-list', [
-            'notification' => [
-                'type' => 'is-success',
-                'message' => 'Bina tanımlaması yapılmıştır',
-            ],
-            'binalar' => $q->paginate(
-                Config::get('constants.table.no_of_results')
-            ),
-        ]);
+        return redirect()->route('binalar')->with('success', 'Bina tanımlaması yapılmıştır.');
     }
 
     public function updateBina(Request $req)
@@ -128,7 +226,10 @@ class BinaController extends Controller
             $props['resident_access_code'] = Hash::make($req->input('resident_access_code'));
         }
 
-        Bina::find($req->id)->update($props);
+        Bina::query()
+            ->where('user_id', Auth::id())
+            ->findOrFail($req->id)
+            ->update($props);
 
         return redirect()->route('binaview', ['id' => $req->id]);
     }
@@ -208,7 +309,9 @@ class BinaController extends Controller
 
     public function selectActive($id)
     {
-        $bina = Bina::find($id);
+        $bina = Bina::query()
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
 
         session(['selected_bina' => $bina->name, 'bina_id' => $bina->id]);
 

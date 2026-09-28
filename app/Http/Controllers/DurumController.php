@@ -31,7 +31,7 @@ class DurumController extends Controller
         $gelir = (float) ($totals->gelir ?? 0);
         $gider = (float) ($totals->gider ?? 0);
 
-        return Inertia::render('Durum', [
+        return Inertia::render('Dashboard', [
             'bina' => [
                 'name' => $bina->name,
                 'pbirimi' => $bina->pbirimi,
@@ -80,7 +80,7 @@ class DurumController extends Controller
                 'resident_name' => trim(($kayit->sakin?->name ?? '') . ' ' . ($kayit->sakin?->lastname ?? '')),
                 'description' => $kayit->aciklama,
                 'amount' => number_format((float) $kayit->tutar, 2, ',', ' '),
-                'created_at' => $kayit->created_at,
+                'created_at' => $kayit->created_at?->format('d-m-Y H:i:s'),
                 'files' => $kayit->dosyalar->map(fn ($file) => [
                     'id' => $file->id,
                     'name' => $file->filename,
@@ -160,6 +160,113 @@ class DurumController extends Controller
             'records' => $records,
             'search' => $search,
         ]);
+    }
+
+    public function expenses(Request $request): Response|RedirectResponse
+    {
+        $bina = $this->activeBina();
+
+        if (!$bina) {
+            return redirect()->route('binalar');
+        }
+
+        $search = trim((string) $request->query('search', ''));
+        $query = Kayit::query()
+            ->with('dosyalar')
+            ->where('bina_id', $bina->id)
+            ->where('tur', 'gider')
+            ->orderByDesc('created_at');
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $query->where('aciklama', 'like', "%{$search}%")
+                    ->orWhere('remarks', 'like', "%{$search}%");
+            });
+        }
+
+        $records = $query
+            ->paginate(config('constants.table.no_of_results'))
+            ->withQueryString()
+            ->through(fn (Kayit $kayit) => [
+                'id' => $kayit->id,
+                'description' => $kayit->aciklama,
+                'amount' => number_format((float) $kayit->tutar, 2, ',', ' '),
+                'due_date' => $kayit->son_odeme,
+                'files' => $kayit->dosyalar->map(fn ($file) => [
+                    'id' => $file->id,
+                    'name' => $file->filename,
+                ])->values(),
+            ]);
+
+        return Inertia::render('Giderler', [
+            'bina' => [
+                'name' => $bina->name,
+                'pbirimi' => $bina->pbirimi,
+            ],
+            'records' => $records,
+            'search' => $search,
+        ]);
+    }
+
+    public function payables(Request $request): Response|RedirectResponse
+    {
+        $bina = $this->activeBina();
+
+        if (!$bina) {
+            return redirect()->route('binalar');
+        }
+
+        $search = trim((string) $request->query('search', ''));
+        $query = Kayit::query()
+            ->with('dosyalar')
+            ->where('bina_id', $bina->id)
+            ->where('tur', 'verecek')
+            ->orderBy('created_at');
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $query->where('aciklama', 'like', "%{$search}%")
+                    ->orWhere('remarks', 'like', "%{$search}%");
+            });
+        }
+
+        $records = $query
+            ->paginate(config('constants.table.no_of_results'))
+            ->withQueryString()
+            ->through(fn (Kayit $kayit) => [
+                'id' => $kayit->id,
+                'description' => $kayit->aciklama,
+                'amount' => number_format((float) $kayit->tutar, 2, ',', ' '),
+                'due_date' => $kayit->son_odeme,
+                'files' => $kayit->dosyalar->map(fn ($file) => [
+                    'id' => $file->id,
+                    'name' => $file->filename,
+                ])->values(),
+            ]);
+
+        return Inertia::render('Verecekler', [
+            'bina' => [
+                'name' => $bina->name,
+                'pbirimi' => $bina->pbirimi,
+            ],
+            'records' => $records,
+            'search' => $search,
+        ]);
+    }
+
+    public function markPayablePaid(int $id): RedirectResponse
+    {
+        $bina = $this->activeBina();
+
+        if ($bina) {
+            Kayit::query()
+                ->whereKey($id)
+                ->where('bina_id', $bina->id)
+                ->where('tur', 'verecek')
+                ->update(['tur' => 'gider']);
+        }
+
+        return redirect()->route('durum.payables');
     }
 
     private function activeBina(): ?Bina

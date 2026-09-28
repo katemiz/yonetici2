@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bina;
 use App\Models\Kayit;
+use App\Models\Sakin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -55,7 +56,7 @@ class DokumController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except('makbuz');
         $this->middleware(function ($request, $next) {
             if (!session('bina_id')) {
                 return redirect()->route('binalar');
@@ -73,7 +74,7 @@ class DokumController extends Controller
             }
 
             return $next($request);
-        });
+        })->except('makbuz');
     }
 
     public function initialize()
@@ -119,15 +120,46 @@ class DokumController extends Controller
 
     public function makbuz(Request $request)
     {
-        $record = false;
-        $yazi = '';
+        $recordId = $request->route('record');
 
-        if (request('record')) {
-            $record = Kayit::find(request('record'));
-            $yazi = $this->numberToText($record->tutar);
+        if ($request->session()->has('resident_id')) {
+            $resident = Sakin::query()
+                ->whereKey($request->session()->get('resident_id'))
+                ->where('is_active', true)
+                ->firstOrFail();
+            $building = Bina::findOrFail($request->session()->get('resident_bina_id'));
+
+            abort_unless($resident->bina_id === $building->id, 403);
+            abort_unless($recordId, 403);
+
+            $record = Kayit::query()
+                ->whereKey($recordId)
+                ->where('bina_id', $building->id)
+                ->where('sakin_id', $resident->id)
+                ->whereIn('tur', ['alacak', 'gelir'])
+                ->firstOrFail();
+
+            $this->bina = $building;
+            $this->sakinler = [
+                $resident->id => $resident->name . ' ' . $resident->lastname,
+            ];
+        } else {
+            abort_unless(Auth::check(), 403);
+
+            $initialization = $this->initialize();
+            if ($initialization instanceof \Illuminate\Http\RedirectResponse) {
+                return $initialization;
+            }
+
+            $record = $recordId
+                ? Kayit::query()
+                    ->whereKey($recordId)
+                    ->where('bina_id', $this->bina->id)
+                    ->firstOrFail()
+                : false;
         }
 
-        $this->initialize();
+        $yazi = $record ? $this->numberToText($record->tutar) : '';
 
         return view('makbuz', [
             'notification' => false,

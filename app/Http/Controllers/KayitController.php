@@ -7,7 +7,6 @@ use App\Models\Bedel;
 use App\Models\Bina;
 use App\Models\Dosya;
 use App\Models\Okuma;
-use App\Models\Sakin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -52,12 +51,100 @@ class KayitController extends Controller
 
     public function kayitForm(Request $request)
     {
+        $recordId = $request->route('id');
+
+        if ($recordId) {
+            $this->kayit = Kayit::query()
+                ->where('bina_id', $this->bina->id)
+                ->findOrFail($recordId);
+
+            $expectedType = match ($request->tur) {
+                'gelir' => 'gelir',
+                'gider' => 'gider',
+                'fatura' => 'verecek',
+                'alacak' => 'alacak',
+                default => null,
+            };
+
+            abort_unless($expectedType && $this->kayit->tur === $expectedType, 404);
+        }
+
+        if (in_array($request->tur, ['gider', 'fatura'], true)) {
+            return Inertia::render('GiderFaturaForm', [
+                'bina' => [
+                    'name' => $this->bina->name,
+                    'pbirimi' => $this->bina->pbirimi,
+                    'kalemler' => $this->bina->kalemler()->pluck('title'),
+                ],
+                'tur' => $request->tur,
+                'kayit' => $this->kayit ? [
+                    'id' => $this->kayit->id,
+                    'aciklama' => $this->kayit->aciklama,
+                    'tutar' => $this->kayit->tutar,
+                    'son_odeme' => $this->kayit->son_odeme,
+                    'spending_category' => $this->kayit->spending_category,
+                    'remarks' => $this->kayit->remarks,
+                ] : null,
+            ]);
+        }
+
+        if ($request->tur === 'alacak') {
+            return Inertia::render('AlacakForm', [
+                'bina' => [
+                    'name' => $this->bina->name,
+                    'pbirimi' => $this->bina->pbirimi,
+                ],
+                'residents' => $this->bina->active_sakinler->map(fn ($sakin) => [
+                    'id' => $sakin->id,
+                    'door_no' => $sakin->door_no,
+                    'name' => $sakin->name,
+                    'lastname' => $sakin->lastname,
+                ])->values(),
+                'kayit' => $this->kayit ? [
+                    'id' => $this->kayit->id,
+                    'sakin_id' => $this->kayit->sakin_id,
+                    'aciklama' => $this->kayit->aciklama,
+                    'tutar' => $this->kayit->tutar,
+                    'son_odeme' => $this->kayit->son_odeme,
+                    'remarks' => $this->kayit->remarks,
+                ] : null,
+                'oldInput' => [
+                    'borclu' => old('borclu'),
+                    'aciklama' => old('aciklama'),
+                    'tutar' => old('tutar'),
+                    'sonodeme' => old('sonodeme'),
+                    'editor_data' => old('editor_data'),
+                ],
+            ]);
+        }
+
+        if ($request->tur === 'aidat') {
+            return Inertia::render('AidatForm', [
+                'bina' => [
+                    'name' => $this->bina->name,
+                ],
+                'residents' => $this->bina->active_sakinler->map(fn ($sakin) => [
+                    'door_no' => $sakin->door_no,
+                    'name' => $sakin->name,
+                    'lastname' => $sakin->lastname,
+                    'amount' => $this->tutarlar[$sakin->id],
+                ])->values(),
+                'period' => now()->toDateString(),
+            ]);
+        }
+
         if ($request->tur === 'gelir') {
             return Inertia::render('GelirForm', [
                 'bina' => [
                     'name' => $this->bina->name,
                     'pbirimi' => $this->bina->pbirimi,
                 ],
+                'kayit' => $this->kayit ? [
+                    'id' => $this->kayit->id,
+                    'aciklama' => $this->kayit->aciklama,
+                    'tutar' => $this->kayit->tutar,
+                    'remarks' => $this->kayit->remarks,
+                ] : null,
             ]);
         }
 
@@ -83,9 +170,11 @@ class KayitController extends Controller
 
     public function kayitAdd(Request $req)
     {
+        $tur = $req->route('tur');
+
         $req->validate([
             'spending_category' => [
-                Rule::requiredIf(in_array($req->tur, ['gider', 'fatura'], true)),
+                Rule::requiredIf(in_array($tur, ['gider', 'fatura'], true)),
                 Rule::in(Kayit::SPENDING_CATEGORIES),
             ],
         ]);
@@ -95,7 +184,7 @@ class KayitController extends Controller
         $props['sakin_id'] = 0;
         $props['remarks'] = $req->input('editor_data');
 
-        if ($req->tur == 'aidat') {
+        if ($tur == 'aidat') {
             $bina = Bina::find(session('bina_id'));
 
             $donem_exp = explode('-', $req->input('donem'));
@@ -139,7 +228,22 @@ class KayitController extends Controller
 
         $tutar = str_replace(',','.',$req->input('tutar'));
 
-        if ($req->tur == 'alacak') {
+        if ($tur == 'alacak') {
+            $req->merge([
+                'tutar' => str_replace(',', '.', (string) $req->input('tutar')),
+            ]);
+            $req->validate([
+                'borclu' => [
+                    'required',
+                    Rule::exists('sakinler', 'id')->where(fn ($query) => $query
+                        ->where('bina_id', $this->bina->id)
+                        ->where('is_active', 1)),
+                ],
+                'aciklama' => ['required', 'string', 'min:10'],
+                'tutar' => ['required', 'numeric'],
+                'sonodeme' => ['nullable', 'date'],
+            ]);
+
             $props['sakin_id'] = $req->input('borclu');
             $props['tur'] = 'alacak';
             $props['aciklama'] = $req->input('aciklama');
@@ -153,7 +257,7 @@ class KayitController extends Controller
             return redirect()->route('durum', ['tur' => 'alacaklar']);
         }
 
-        if ($req->tur == 'fatura') {
+        if ($tur == 'fatura') {
             $props['tur'] = 'verecek';
             $props['spending_category'] = $req->input('spending_category');
             $props['aciklama'] = $req->input('aciklama');
@@ -167,7 +271,7 @@ class KayitController extends Controller
             return redirect()->route('durum', ['tur' => 'verecekler']);
         }
 
-        if ($req->tur == 'gider') {
+        if ($tur == 'gider') {
             $props['tur'] = 'gider';
             $props['spending_category'] = $req->input('spending_category');
             $props['aciklama'] = $req->input('aciklama');
@@ -181,7 +285,7 @@ class KayitController extends Controller
             return redirect()->route('durum', ['tur' => 'giderler']);
         }
 
-        if ($req->tur == 'gelir') {
+        if ($tur == 'gelir') {
             $props['tur'] = 'gelir';
             $props['aciklama'] = $req->input('aciklama');
             $props['donem'] = '';
@@ -193,6 +297,71 @@ class KayitController extends Controller
 
             return redirect()->route('durum', ['tur' => 'gelirler']);
         }
+    }
+
+    public function kayitUpdate(Request $request, string $tur, int $id)
+    {
+        $kayit = Kayit::query()
+            ->where('bina_id', $this->bina->id)
+            ->findOrFail($id);
+
+        $expectedType = match ($tur) {
+            'gelir' => 'gelir',
+            'gider' => 'gider',
+            'fatura' => 'verecek',
+            'alacak' => 'alacak',
+            default => abort(404),
+        };
+
+        abort_unless($kayit->tur === $expectedType, 404);
+
+        $request->validate([
+            'spending_category' => [
+                Rule::requiredIf(in_array($tur, ['gider', 'fatura'], true)),
+                Rule::in(Kayit::SPENDING_CATEGORIES),
+            ],
+        ]);
+
+        $kayit->aciklama = $request->input('aciklama');
+        $kayit->tutar = str_replace(',', '.', $request->input('tutar'));
+        $kayit->remarks = $request->input('editor_data');
+
+        if ($tur === 'alacak') {
+            $request->merge([
+                'tutar' => str_replace(',', '.', (string) $request->input('tutar')),
+            ]);
+            $request->validate([
+                'borclu' => [
+                    'required',
+                    Rule::exists('sakinler', 'id')->where(fn ($query) => $query
+                        ->where('bina_id', $this->bina->id)
+                        ->where('is_active', 1)),
+                ],
+                'aciklama' => ['required', 'string', 'min:10'],
+                'tutar' => ['required', 'numeric'],
+                'sonodeme' => ['nullable', 'date'],
+            ]);
+
+            $kayit->sakin_id = $request->input('borclu');
+            $kayit->son_odeme = $request->input('sonodeme');
+        } elseif ($tur === 'fatura') {
+            $kayit->spending_category = $request->input('spending_category');
+            $kayit->son_odeme = $request->input('sonodeme');
+        } elseif ($tur === 'gider') {
+            $kayit->spending_category = $request->input('spending_category');
+        }
+
+        $kayit->save();
+        $this->addFiles($request, $kayit->id);
+
+        $statusPage = match ($tur) {
+            'gelir' => 'gelirler',
+            'gider' => 'giderler',
+            'fatura' => 'verecekler',
+            'alacak' => 'alacaklar',
+        };
+
+        return redirect()->route('durum', ['tur' => $statusPage]);
     }
 
     public function okumaAdd(Request $req)
@@ -314,32 +483,45 @@ class KayitController extends Controller
 
 
 
-    public function kayitGor(){
+    public function kayitGor(int $id)
+    {
+        $kayit = Kayit::query()
+            ->with(['sakin', 'dosyalar'])
+            ->where('bina_id', $this->bina->id)
+            ->findOrFail($id);
 
+        $editType = match ($kayit->tur) {
+            'gelir' => 'gelir',
+            'gider' => 'gider',
+            'verecek' => 'fatura',
+            'alacak' => 'alacak',
+            default => null,
+        };
 
-        if ( empty(session()->get(key: 'bina_id'))) {
-            redirect('/bina-list');
-        }
-
-
-        $bina = Bina::find(session()->get(key: 'bina_id'));
-        $kayit = Kayit::find(request('id'));
-
-        $yerlesenler = Sakin::where('bina_id','=',$bina['id'])->get()->toArray();
-
-        foreach ($yerlesenler as $yerlesen) {
-            $sakinler[$yerlesen['id']] = $yerlesen;
-        }
-
-        //dd(vars: $sakinler);
-
-        return view('kayit.kayit-gor',[
-            'kayit' => $kayit,
-            'bina' => $bina,
-            'sakinler' => $sakinler
+        return Inertia::render('KayitDetail', [
+            'bina' => [
+                'name' => $this->bina->name,
+                'address' => $this->bina->address,
+                'pbirimi' => $this->bina->pbirimi,
+            ],
+            'record' => [
+                'id' => $kayit->id,
+                'type' => $kayit->tur,
+                'description' => $kayit->aciklama,
+                'period' => $kayit->donem,
+                'amount' => $kayit->tutar,
+                'remarks' => $kayit->remarks,
+                'breakdown' => $kayit->dokum ? json_decode($kayit->dokum, true) : null,
+                'resident' => $kayit->sakin ? [
+                    'name' => trim($kayit->sakin->name . ' ' . $kayit->sakin->lastname),
+                    'door_no' => $kayit->sakin->door_no,
+                ] : null,
+                'files' => $kayit->dosyalar->map(fn (Dosya $file) => [
+                    'id' => $file->id,
+                    'name' => $file->filename,
+                ])->values(),
+                'edit_url' => $editType ? "/kayit-form/{$editType}/{$kayit->id}" : null,
+            ],
         ]);
-
-
-
     }
 }

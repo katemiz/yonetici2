@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -17,7 +18,23 @@ class AuthenticatedSessionController extends Controller
      */
     public function create()
     {
-        return view('auth.login');
+        return Inertia::render('Login', [
+            'email' => old('email', ''),
+            'status' => session('status'),
+            'locale' => app()->getLocale(),
+            'loginLogo' => config('constants.app.app_login_logo'),
+            'appName' => config('constants.app.name'),
+            'company' => config('constants.company'),
+            'labels' => [
+                'email' => __('Email'),
+                'emailPlaceholder' => __('Enter your email'),
+                'password' => __('Password'),
+                'passwordPlaceholder' => __('Your Password'),
+                'login' => __('Log In'),
+                'forgotPassword' => __('Forgot password?'),
+                'register' => __('Register'),
+            ],
+        ]);
     }
 
     /**
