@@ -18,8 +18,8 @@ return [
         'app_login_logo' => 'app_login_logo.svg',
         'app_header_logo' => 'app_header_logo.svg',
         'app_footer_logo' => 'app_footer_logo.svg',
-        'version' => '2025.12.07',
-        'copyright' => '© 2025 All Rights Reserved',
+        'version' => '2026.09 V2.0',
+        'copyright' => '© Her Hakkı Mahfuzdur',
     ],
 
     'icons' => [

@@ -596,8 +596,10 @@ class PDFController extends Controller
 
         $pdf::SetFont('dejavusans', '', 6);
 
-        if ($this->kayit) {
-            foreach (json_decode($this->kayit->dokum) as $title => $deger) {
+        $dokum = $this->kayit ? json_decode($this->kayit->dokum, true) : null;
+
+        if (is_array($dokum)) {
+            foreach ($dokum as $title => $deger) {
 
                 if (is_numeric($deger)) {
                     $deger = number_format($deger, 2, ',', ' ');

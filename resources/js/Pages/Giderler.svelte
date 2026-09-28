@@ -1,5 +1,5 @@
 <script>
-    import { File, Plus, Receipt, Search, X } from '@lucide/svelte';
+    import { File, Plus, Search, X } from '@lucide/svelte';
     import { page } from '@inertiajs/svelte';
     import Paginate from './components/Paginate.svelte';
     import Layout from './Shared/Layout.svelte';
@@ -8,7 +8,7 @@
     let isResident = $derived(page?.props?.userType === 'resident');
     let query = $state('');
     let selectedRecord = $state(null);
-    let listUrl = $derived(isResident ? '/resident-status/gelirler' : '/durum/gelirler');
+    let listUrl = $derived(isResident ? '/resident-status/giderler' : '/durum/giderler');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
     $effect(() => {
@@ -17,15 +17,15 @@
 </script>
 
 <svelte:head>
-    <title>Gelirler - {bina?.name ?? 'Akıllı Yönetici'}</title>
+    <title>Giderler - {bina?.name ?? 'Akıllı Yönetici'}</title>
 </svelte:head>
 
 <Layout>
     <main class="section">
         <div class="container">
             <header class="my-6">
-                <h1 class="title has-text-weight-light is-size-1">Gelirler</h1>
-                <h2 class="subtitle has-text-weight-light">{bina?.name}: Gelir Kayıtları</h2>
+                <h1 class="title has-text-weight-light is-size-1">Giderler</h1>
+                <h2 class="subtitle has-text-weight-light">{bina?.name}: Gider Kayıtları</h2>
             </header>
 
             {#if isResident}
@@ -35,15 +35,15 @@
             <div class="level mb-5">
                 <div class="level-left">
                     {#if !isResident}
-                        <a href="/kayit-form/gelir" class="button is-link">
-                            <Plus size={18} />Gelir Ekle
+                        <a href="/kayit-form/gider" class="button is-link">
+                            <Plus size={18} />Gider Ekle
                         </a>
                     {/if}
                 </div>
                 <div class="level-right">
                     <form method="GET" action={listUrl} class="field has-addons">
                         <div class="control has-icons-left">
-                            <input class="input" name="search" bind:value={query} placeholder="Ara" aria-label="Gelirlerde ara">
+                            <input class="input" name="search" bind:value={query} placeholder="Ara" aria-label="Giderlerde ara">
                             <Search size={16} class="icon is-left" />
                         </div>
                         <div class="control">
@@ -65,23 +65,19 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Kapı No</th>
-                                <th>Borçlu</th>
                                 <th>Açıklama</th>
                                 <th class="has-text-right">Tutar</th>
                                 {#if !isResident}
                                     <th>&nbsp;</th>
                                     <th class="has-text-right">Dosya</th>
                                 {/if}
-                                <th class="has-text-right">İşlemler</th>
+                                <th>Son Ödeme</th>
                             </tr>
                         </thead>
                         <tbody>
                             {#each records.data as record}
                                 <tr>
                                     <td>{#if isResident}{record.id}{:else}<a href={`/kayit-gor/${record.id}`}>{record.id}</a>{/if}</td>
-                                    <td>{record.door_no}</td>
-                                    <td>{record.resident_name}</td>
                                     <td>{#if isResident}{record.description ?? ''}{:else}{@html record.description ?? ''}{/if}</td>
                                     <td class="has-text-right td-tutar">{record.amount} {bina.pbirimi}</td>
                                     {#if !isResident}
@@ -99,19 +95,7 @@
                                             {/each}
                                         </td>
                                     {/if}
-                                    <td class="has-text-right">
-                                        {#if isResident}
-                                            {#if record.can_view_receipt}
-                                                <a href={`/makbuz/${record.id}`} class="icon" title="Makbuz" aria-label="Makbuz">
-                                                    <Receipt size={18} />
-                                                </a>
-                                            {/if}
-                                        {:else}
-                                            <a href={`/makbuzpdf/${record.id}`} class="icon" title="Makbuz">
-                                                <Receipt size={18} />
-                                            </a>
-                                        {/if}
-                                    </td>
+                                    <td>{record.due_date ?? ''}</td>
                                 </tr>
                             {/each}
                         </tbody>
@@ -120,7 +104,7 @@
 
                 <Paginate items={records} />
             {:else}
-                <div class="notification is-warning is-light">Gelir kaydı yoktur</div>
+                <div class="notification is-warning is-light">Gider kaydı yoktur</div>
             {/if}
         </div>
     </main>
@@ -133,7 +117,7 @@
                     <p class="modal-card-title">Kayıtlara Dosya Ekleme</p>
                     <button class="delete" aria-label="close" onclick={() => selectedRecord = null}></button>
                 </header>
-                <form method="POST" action={`/kayit-dosya-add/${selectedRecord}/gelirler`} enctype="multipart/form-data">
+                <form method="POST" action={`/kayit-dosya-add/${selectedRecord}/giderler`} enctype="multipart/form-data">
                     <input type="hidden" name="_token" value={csrfToken}>
                     <section class="modal-card-body">
                         <input class="file-input" type="file" name="dosyalar[]" multiple required>

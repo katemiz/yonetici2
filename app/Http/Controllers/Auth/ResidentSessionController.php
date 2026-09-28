@@ -9,12 +9,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class ResidentSessionController extends Controller
 {
     public function create()
     {
-        return view('auth.resident-login');
+        return Inertia::render('ResidentLogin', [
+            'phone' => old('phone', ''),
+            'locale' => app()->getLocale(),
+            'loginLogo' => config('constants.app.app_login_logo'),
+            'appName' => config('constants.app.name'),
+            'company' => config('constants.company'),
+        ]);
     }
 
     public function store(Request $request)

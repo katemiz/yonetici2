@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::middleware('guest')->group(function () {
     Route::get('resident-login', [\App\Http\Controllers\Auth\ResidentSessionController::class, 'create'])
@@ -46,7 +47,12 @@ Route::middleware('resident')->group(function () {
 
         abort_unless($resident->bina_id === $building->id && $resident->is_active, 403);
 
-        return view('resident.dashboard', compact('resident', 'building'));
+        return Inertia::render('Dashboard', [
+            'building' => [
+                'name' => $building->name,
+                'pbirimi' => $building->pbirimi,
+            ],
+        ]);
     })->name('resident.dashboard');
     Route::get('resident-status/{section}', [\App\Http\Controllers\ResidentStatusController::class, 'show'])
         ->where('section', 'ozet|alacaklar|gelirler|giderler')
