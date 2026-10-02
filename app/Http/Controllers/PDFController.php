@@ -29,7 +29,9 @@ class PDFController extends Controller
             return redirect()->route('binalar');
         }
 
-        $this->bina = Bina::find(session('bina_id'));
+        $this->bina = Bina::query()
+            ->accessibleTo(Auth::user())
+            ->findOrFail(session('bina_id'));
         $this->yonetici = User::find($this->bina->user_id);
     }
 
@@ -764,12 +766,10 @@ class PDFController extends Controller
 
     public function getBinaData($idBina)
     {
-        $this->bina = Bina::find($idBina);
+        $this->bina = Bina::query()
+            ->accessibleTo(Auth::user())
+            ->findOrFail($idBina);
         $this->yonetici = User::find($this->bina->user_id);
-
-        if ($this->bina->user_id !== Auth::id()) {
-            abort('403');
-        }
 
         foreach ($this->bina->sakinler as $sakin) {
             $this->sakinler[$sakin->id] = $sakin->name . ' ' . $sakin->lastname;

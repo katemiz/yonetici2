@@ -23,10 +23,14 @@ class HandleInertiaRequests extends Middleware
         return array_merge(parent::share($request), [
             'userType' => $request->session()->has('resident_id')
                 ? 'resident'
-                : ($request->user() ? 'manager' : 'guest'),
+                : ($request->user()?->role ?? 'guest'),
             'resident' => $resident ? [
                 'name' => trim($resident->name . ' ' . $resident->lastname),
                 'door_no' => $resident->door_no,
+            ] : null,
+            'buildingQuota' => $request->user() && !$request->user()->isSuperuser() ? [
+                'limit' => $request->user()->building_quota,
+                'used' => \App\Models\Bina::query()->where('user_id', $request->user()->id)->count(),
             ] : null,
             'auth' => [
                 'user' => $request->user(),

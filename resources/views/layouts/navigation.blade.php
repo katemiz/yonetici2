@@ -133,12 +133,6 @@
 
                     <div class="navbar-item">
 
-                        <a href="{{route('register')}}" class="icon-text">
-                            <span class="icon">
-                                <x-icon icon="user" fill="{{config('constants.icons.color.light')}}" />
-                            </span>
-                            <span class="ml-1">Kaydolun</span>
-                        </a>
                     </div>
                 @endif
 

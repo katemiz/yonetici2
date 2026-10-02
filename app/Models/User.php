@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -36,24 +33,22 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
-    // public function getCustomAttribute()
-    // {
-    //     return 'Custom attribute';
-    // }
+    public function isSuperuser(): bool
+    {
+        return $this->role === 'superuser';
+    }
 
-    // public function setCustomAttribute($value)
-    // {
-    //     $this->attributes['custom'] = $value;
-    // }
+    public function canCreateBuilding(): bool
+    {
+        return $this->isSuperuser()
+            || \App\Models\Bina::query()->where('user_id', $this->id)->count() < $this->building_quota;
+    }
 
-    // protected function selectedBina(): Attribute
-    // {
-    //     return new Attribute(
-    //         get: fn ($value, $attributes) => Carbon::parse(
-    //             $attributes['updated_at']
-    //         )->diffForHumans(),
-    //     );
-    // }
+    public function binalar()
+    {
+        return $this->hasMany(Bina::class);
+    }
 }

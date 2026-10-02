@@ -98,11 +98,6 @@
                             <a href="/forgot-password">{labels.forgotPassword}</a>
                         </p>
                     </div>
-                    <div class="column">
-                        <p class="has-text-right is-size-6 has-text-weight-light my-3">
-                            <a href="/register">{labels.register}</a>
-                        </p>
-                    </div>
                 </div>
 
 

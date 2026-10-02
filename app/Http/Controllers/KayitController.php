@@ -32,14 +32,12 @@ class KayitController extends Controller
             //     return redirect()->route('binalar');
             // }
 
-            $this->bina = Bina::find(session('bina_id'));
+            $this->bina = Bina::query()
+                ->accessibleTo(Auth::user())
+                ->findOrFail(session('bina_id'));
 
             $this->sabitBedeller();
             $this->okumali_bedeller = $this->okumaliBedeller();
-
-            if ($this->bina->user_id !== Auth::id()) {
-                abort('403');
-            }
 
             if ($request->tur == 'aidat') {
                 $this->calculateAidatlar();
@@ -52,6 +50,8 @@ class KayitController extends Controller
     public function kayitForm(Request $request)
     {
         $recordId = $request->route('id');
+
+
 
         if ($recordId) {
             $this->kayit = Kayit::query()
@@ -68,6 +68,7 @@ class KayitController extends Controller
 
             abort_unless($expectedType && $this->kayit->tur === $expectedType, 404);
         }
+
 
         if (in_array($request->tur, ['gider', 'fatura'], true)) {
             return Inertia::render('GiderFaturaForm', [
@@ -134,6 +135,7 @@ class KayitController extends Controller
         }
 
         if ($request->tur === 'gelir') {
+
             return Inertia::render('GelirForm', [
                 'bina' => [
                     'name' => $this->bina->name,
@@ -147,6 +149,7 @@ class KayitController extends Controller
                 ] : null,
             ]);
         }
+
 
         return view('kayit.kayit-form', [
             'bina' => $this->bina,
@@ -179,13 +182,13 @@ class KayitController extends Controller
             ],
         ]);
 
-        $props['user_id'] = Auth::id();
-        $props['bina_id'] = session('bina_id');
+        $props['user_id'] = $this->bina->user_id;
+        $props['bina_id'] = $this->bina->id;
         $props['sakin_id'] = 0;
         $props['remarks'] = $req->input('editor_data');
 
         if ($tur == 'aidat') {
-            $bina = Bina::find(session('bina_id'));
+            $bina = $this->bina;
 
             $donem_exp = explode('-', $req->input('donem'));
 
@@ -223,7 +226,7 @@ class KayitController extends Controller
                 $this->addFiles($req, $kayit->id);
             }
 
-            return redirect()->route('durum', ['tur' => 'alacaklar']);
+            return redirect()->route('durum.receivables');
         }
 
         $tutar = str_replace(',','.',$req->input('tutar'));
@@ -254,7 +257,7 @@ class KayitController extends Controller
             $kayit = Kayit::create($props);
             $this->addFiles($req, $kayit->id);
 
-            return redirect()->route('durum', ['tur' => 'alacaklar']);
+            return redirect()->route('durum.receivables');
         }
 
         if ($tur == 'fatura') {
@@ -268,7 +271,7 @@ class KayitController extends Controller
             $kayit = Kayit::create($props);
             $this->addFiles($req, $kayit->id);
 
-            return redirect()->route('durum', ['tur' => 'verecekler']);
+            return redirect()->route('durum.payables');
         }
 
         if ($tur == 'gider') {
@@ -282,7 +285,7 @@ class KayitController extends Controller
             $kayit = Kayit::create($props);
             $this->addFiles($req, $kayit->id);
 
-            return redirect()->route('durum', ['tur' => 'giderler']);
+            return redirect()->route('durum.expenses');
         }
 
         if ($tur == 'gelir') {
@@ -295,7 +298,7 @@ class KayitController extends Controller
             $kayit = Kayit::create($props);
             $this->addFiles($req, $kayit->id);
 
-            return redirect()->route('durum', ['tur' => 'gelirler']);
+            return redirect()->route('durum.incomes');
         }
     }
 
@@ -354,14 +357,14 @@ class KayitController extends Controller
         $kayit->save();
         $this->addFiles($request, $kayit->id);
 
-        $statusPage = match ($tur) {
-            'gelir' => 'gelirler',
-            'gider' => 'giderler',
-            'fatura' => 'verecekler',
-            'alacak' => 'alacaklar',
+        $statusRoute = match ($tur) {
+            'gelir' => 'durum.incomes',
+            'gider' => 'durum.expenses',
+            'fatura' => 'durum.payables',
+            'alacak' => 'durum.receivables',
         };
 
-        return redirect()->route('durum', ['tur' => $statusPage]);
+        return redirect()->route($statusRoute);
     }
 
     public function okumaAdd(Request $req)
@@ -370,11 +373,11 @@ class KayitController extends Controller
             'reading_type' => 'required',
         ]);
 
-        $props['user_id'] = Auth::id();
-        $props['bina_id'] = session('bina_id');
+        $props['user_id'] = $this->bina->user_id;
+        $props['bina_id'] = $this->bina->id;
         $props['bedel_id'] = $req->input('reading_type');
 
-        $bina = Bina::find(session('bina_id'));
+        $bina = $this->bina;
 
         $donem_exp = explode('-', $req->input('donem'));
 
@@ -394,7 +397,7 @@ class KayitController extends Controller
             }
         }
 
-        return redirect()->route('durum', ['tur' => 'alacaklar']);
+        return redirect()->route('durum.receivables');
     }
 
     public function sabitBedeller()
@@ -467,7 +470,17 @@ class KayitController extends Controller
     {
         $this->addFiles($request, request('id'));
 
-        return redirect()->route('durum', ['tur' => request('tur')]);
+        $statusRoute = match (request('tur')) {
+            'gelirler' => 'durum.incomes',
+            'giderler' => 'durum.expenses',
+            'verecekler' => 'durum.payables',
+            'alacaklar' => 'durum.receivables',
+            default => null,
+        };
+
+        return $statusRoute
+            ? redirect()->route($statusRoute)
+            : redirect()->route('durum', ['tur' => request('tur')]);
     }
 
     public function saveRecord($dosya, $kayit_id, $saved_dir)

@@ -154,6 +154,7 @@ class DurumController extends Controller
 
         return Inertia::render('Gelirler', [
             'bina' => [
+                'id' => $bina->id,
                 'name' => $bina->name,
                 'pbirimi' => $bina->pbirimi,
             ],
@@ -272,7 +273,7 @@ class DurumController extends Controller
     private function activeBina(): ?Bina
     {
         return Bina::query()
-            ->where('user_id', Auth::id())
+            ->accessibleTo(Auth::user())
             ->whereKey(session('bina_id'))
             ->first();
     }

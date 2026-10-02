@@ -32,7 +32,6 @@ class AuthenticatedSessionController extends Controller
                 'passwordPlaceholder' => __('Your Password'),
                 'login' => __('Log In'),
                 'forgotPassword' => __('Forgot password?'),
-                'register' => __('Register'),
             ],
         ]);
     }

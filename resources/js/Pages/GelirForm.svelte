@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { FileUp } from '@lucide/svelte';
     import Layout from './Shared/Layout.svelte';
+    import FilesList from './components/FilesList.svelte';
 
     let { bina, kayit = null, errors = {} } = $props();
     let notes = $state('');
@@ -117,7 +118,9 @@
                                 <label class="file-label">
                                     <input class="file-input" type="file" name="dosyalar[]" multiple onchange={updateFiles}>
                                     <span class="file-cta">
-                                        <span class="file-icon"><FileUp size={20} /></span>
+                                        <span class="file-icon">
+                                            <FileUp size={20} />
+                                        </span>
                                         <span class="file-label">Dosyalar</span>
                                     </span>
                                 </label>
@@ -125,6 +128,10 @@
                         </div>
 
                         <div class="column">
+
+
+                            <FilesList media={files} modelType="material" modelId={1} collectionName="gallery_images" />
+
                             <table class="table is-striped is-fullwidth">
                                 <tbody>
                                     {#each files as file}

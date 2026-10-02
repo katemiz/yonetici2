@@ -17,10 +17,9 @@ class SayacOkumaController extends Controller
 {
     private function building(): Bina
     {
-        $building = Bina::findOrFail(session('bina_id'));
-        abort_unless($building->user_id === Auth::id(), 403);
-
-        return $building;
+        return Bina::query()
+            ->accessibleTo(Auth::user())
+            ->findOrFail(session('bina_id'));
     }
 
     public function index(Request $request)
@@ -115,7 +114,7 @@ class SayacOkumaController extends Controller
             ->findOrFail($data['sakin_id']);
 
         Okuma::create([
-            'user_id' => Auth::id(),
+            'user_id' => $building->user_id,
             'bina_id' => $building->id,
             'bedel_id' => $meter->id,
             'sakin_id' => $resident->id,
@@ -192,7 +191,7 @@ class SayacOkumaController extends Controller
             $lastValue = (float) $reading->okuma_degeri;
             $amount = abs($lastValue - $firstValue) * (float) $meter->bedel;
             $record = Kayit::create([
-                'user_id' => Auth::id(),
+                'user_id' => $building->user_id,
                 'bina_id' => $building->id,
                 'sakin_id' => $reading->sakin_id,
                 'tur' => 'alacak',

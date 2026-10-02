@@ -5,6 +5,8 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Bina extends Model
@@ -14,6 +16,13 @@ class Bina extends Model
     protected $guarded = [];
 
     protected $table = 'binalar';
+
+    public function scopeAccessibleTo(Builder $query, User $user): Builder
+    {
+        return $user->isSuperuser()
+            ? $query
+            : $query->where('user_id', $user->id);
+    }
 
 
     public function sakinler()

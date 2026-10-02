@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dosya;
+use App\Models\Bina;
 use App\Models\Kayit;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -37,10 +38,11 @@ class DosyaController extends Controller
 
     public function checkPermission($kayit_id)
     {
-        if (Auth::id() === Kayit::find($kayit_id)->user_id) {
-            return true;
-        } else {
-            return false;
-        }
+        $record = Kayit::findOrFail($kayit_id);
+
+        return Bina::query()
+            ->accessibleTo(Auth::user())
+            ->whereKey($record->bina_id)
+            ->exists();
     }
 }

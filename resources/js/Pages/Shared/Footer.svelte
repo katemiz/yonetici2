@@ -5,7 +5,7 @@
     let company = $derived(app.company ?? {});
 </script>
 
-<footer class="footer has-background-light">
+<footer class="footer has-background-light has-border">
     <div class="columns">
         <div class="column has-text-left has-text-centered-mobile">
             <img src={`/images/${company.logo ?? 'kapkara.svg'}`} width="28" alt={company.name ?? ''}>
@@ -33,3 +33,14 @@
         </div>
     </div>
 </footer>
+
+<style>
+
+/* In your CSS / SCSS */
+.has-border {
+  border-top: 1px solid #dbdbdb; /* Standard Bulma border color */
+  border-radius: 4px;
+}
+
+
+</style>
