@@ -20,9 +20,7 @@ class BinaController extends Controller
 
     public function getBinalar()
     {
-        return Bina::query()
-            ->where('user_id', '=', Auth::id())
-            ->get();
+        return Bina::query()->accessibleTo(Auth::user())->get();
     }
 
     public function index(Request $request)
@@ -33,11 +31,11 @@ class BinaController extends Controller
         abort_unless(in_array($direction, ['asc', 'desc'], true), 422);
 
         $binalar = Bina::query()
-            ->where('user_id', Auth::id())
-            ->when($request->filled('search'), fn ($query) => $query->where(
+            ->accessibleTo(Auth::user())
+            ->when($request->filled('query'), fn ($query) => $query->where(
                 'name',
                 'like',
-                '%' . $request->string('search') . '%'
+                '%' . $request->string('query') . '%'
             ))
             ->orderBy($sort, $direction)
             ->paginate(Config::get('constants.table.no_of_results'))
@@ -51,17 +49,18 @@ class BinaController extends Controller
         return Inertia::render('BinaList', [
             'binalar' => $binalar,
             'selectedBinaId' => session('bina_id'),
-            'search' => $request->query('search', ''),
+            'query' => $request->query('query', ''),
             'sort' => $sort,
             'direction' => $direction,
             'success' => session('success'),
+
         ]);
     }
 
     public function view(int $id)
     {
         $bina = Bina::query()
-            ->where('user_id', Auth::id())
+            ->accessibleTo(Auth::user())
             ->withCount(['sakinler', 'kalemler', 'bedeller'])
             ->findOrFail($id);
 
@@ -85,7 +84,7 @@ class BinaController extends Controller
     public function bedelList(Request $request, int $id)
     {
         $bina = Bina::query()
-            ->where('user_id', Auth::id())
+            ->accessibleTo(Auth::user())
             ->findOrFail($id);
         $bedeller = $bina->bedeller()
             ->orderBy('created_at', 'desc')
@@ -109,7 +108,7 @@ class BinaController extends Controller
     public function kalemList(Request $request, int $id)
     {
         $bina = Bina::query()
-            ->where('user_id', Auth::id())
+            ->accessibleTo(Auth::user())
             ->findOrFail($id);
         $sort = $request->query('sort', 'created_at');
         $direction = $request->query('direction', 'desc');
@@ -175,24 +174,35 @@ class BinaController extends Controller
 
     public function formBina(Request $request)
     {
-        $bina = false;
+        $bina = $request->route('id')
+            ? Bina::query()->accessibleTo(Auth::user())->findOrFail($request->route('id'))
+            : null;
 
-        if ($request->id) {
-            $sonuc = Bina::find($request->id);
-
-            if ($sonuc->user_id === Auth::id()) {
-                $bina = $sonuc;
-            }
-        }
-
-        return view('bina.bina-form', [
-            'bina' => $bina,
+        return Inertia::render('BinaForm', [
+            'bina' => $bina ? [
+                'id' => $bina->id,
+                'name' => $bina->name,
+                'address' => $bina->address,
+                'city' => $bina->city,
+                'pbirimi' => $bina->pbirimi,
+                'resident_access_configured' => !empty($bina->resident_access_code),
+            ] : null,
             'paralar' => $this->paralar,
+            'oldInput' => [
+                'binaname' => old('binaname'),
+                'binaaddress' => old('binaaddress'),
+                'binacity' => old('binacity'),
+                'parabirimi' => old('parabirimi'),
+                'resident_access_code' => old('resident_access_code'),
+            ],
         ]);
     }
 
     public function addBina(Request $req)
     {
+        if (!Auth::user()->canCreateBuilding()) {
+            return back()->withErrors(['quota' => 'Bina kotanız dolmuştur.']);
+        }
         $req->validate([
             'resident_access_code' => ['nullable', 'string', 'max:64'],
         ]);
@@ -217,7 +227,6 @@ class BinaController extends Controller
             'resident_access_code' => ['nullable', 'string', 'max:64'],
         ]);
 
-        $props['user_id'] = Auth::id();
         $props['name'] = $req->input('binaname');
         $props['pbirimi'] = $req->input('parabirimi');
         $props['address'] = $req->input('binaaddress');
@@ -227,7 +236,7 @@ class BinaController extends Controller
         }
 
         Bina::query()
-            ->where('user_id', Auth::id())
+            ->accessibleTo(Auth::user())
             ->findOrFail($req->id)
             ->update($props);
 
@@ -236,7 +245,7 @@ class BinaController extends Controller
 
     public function ayarView(Request $req)
     {
-        $bina = Bina::find($req->id);
+        $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
 
         return view('bina.bina-ayar-view', [
             'notification' => false,
@@ -246,7 +255,7 @@ class BinaController extends Controller
 
     public function ayarForm(Request $req)
     {
-        $bina = Bina::find($req->id);
+        $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
 
         return view('bina.bina-ayar-form', [
             'notification' => false,
@@ -256,7 +265,8 @@ class BinaController extends Controller
 
     public function ayarAdd(Request $req)
     {
-        $props['bina_id'] = $req->id;
+        $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
+        $props['bina_id'] = $bina->id;
         $props['para_birimi'] = $req->input('parabirimi');
         $props['yakit'] = $req->input('yakit');
         $props['su'] = $req->input('su');
@@ -270,8 +280,6 @@ class BinaController extends Controller
         $props['aidat'] = $req->input('aidat');
 
         Ayarlar::create($props);
-
-        $bina = Bina::find($req->id);
 
         return view('bina.bina-ayar-view', [
             'notification' => [
@@ -296,25 +304,27 @@ class BinaController extends Controller
         $props['onarim'] = $req->input('onarim');
         $props['aidat'] = $req->input('aidat');
 
-        Ayarlar::find($req->ayarid)->update($props);
+        $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
+        $ayarlar = Ayarlar::query()->where('bina_id', $bina->id)->findOrFail($req->ayarid);
+        $ayarlar->update($props);
 
         return view('bina.bina-ayar-view', [
             'notification' => [
                 'type' => 'is-success',
                 'message' => 'Ayarlar güncellenmiştir',
             ],
-            'bina' => Bina::find($req->id),
+            'bina' => $bina,
         ]);
     }
 
     public function selectActive($id)
     {
         $bina = Bina::query()
-            ->where('user_id', Auth::id())
+            ->accessibleTo(Auth::user())
             ->findOrFail($id);
 
         session(['selected_bina' => $bina->name, 'bina_id' => $bina->id]);
 
-        return redirect()->route('durum', ['tur' => 'ozet']);
+        return redirect()->route('durum.summary');
     }
 }

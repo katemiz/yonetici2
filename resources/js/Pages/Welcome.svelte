@@ -20,7 +20,6 @@
                         {#if !user}
                             <div class="buttons mt-5">
                                 <a href="/login" class="button is-link">Giriş yap</a>
-                                <a href="/register" class="button is-light">Hesap oluştur</a>
                             </div>
                         {:else if bina_sayisi === 0}
                             <section class="mt-6">

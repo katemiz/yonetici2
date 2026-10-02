@@ -11,15 +11,11 @@ class KalemController extends Controller
 {
     public function form(Request $request)
     {
-        $bina = Bina::find($request->id);
+        $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($request->id);
         $kalem = false;
 
-        if ($bina->user_id !== Auth::id()) {
-            abort('404');
-        }
-
         if ($request->kalemid) {
-            $kalem = Kalem::find($request->kalemid);
+            $kalem = $bina->kalemler()->findOrFail($request->kalemid);
         }
 
         return view('bina.kalem-form', [
@@ -30,8 +26,9 @@ class KalemController extends Controller
 
     public function add(Request $req)
     {
-        $props['user_id'] = Auth::id();
-        $props['bina_id'] = $req->id;
+        $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
+        $props['user_id'] = $bina->user_id;
+        $props['bina_id'] = $bina->id;
         $props['title'] = $req->input('title');
 
         Kalem::create($props);
@@ -43,11 +40,12 @@ class KalemController extends Controller
 
     public function update(Request $req)
     {
-        $props['user_id'] = Auth::id();
-        $props['bina_id'] = $req->id;
+        $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
+        $props['user_id'] = $bina->user_id;
+        $props['bina_id'] = $bina->id;
         $props['title'] = $req->input('title');
 
-        Kalem::find($req->kalemid)->update($props);
+        $bina->kalemler()->findOrFail($req->kalemid)->update($props);
 
         return redirect()->route('kalemler', [
             'id' => $req->id,
@@ -56,9 +54,7 @@ class KalemController extends Controller
 
     public function destroy(int $id, int $kalemid)
     {
-        $bina = Bina::query()
-            ->where('user_id', Auth::id())
-            ->findOrFail($id);
+        $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($id);
         $bina->kalemler()->findOrFail($kalemid)->delete();
 
         return redirect()->route('kalemler', ['id' => $bina->id])

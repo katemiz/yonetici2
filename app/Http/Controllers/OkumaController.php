@@ -16,11 +16,9 @@ class OkumaController extends Controller
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            $this->bina = Bina::find($request->id);
-
-            if ($this->bina->user_id !== Auth::id()) {
-                abort('403');
-            }
+            $this->bina = Bina::query()
+                ->accessibleTo(Auth::user())
+                ->findOrFail($request->id);
             return $next($request);
         });
     }

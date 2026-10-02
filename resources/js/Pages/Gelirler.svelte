@@ -1,19 +1,67 @@
 <script>
-    import { File, Plus, Receipt, Search, X } from '@lucide/svelte';
-    import { page } from '@inertiajs/svelte';
+    import { File, Plus, Receipt, Search, X, Paperclip } from '@lucide/svelte';
+    import { page, router } from '@inertiajs/svelte';
     import Paginate from './components/Paginate.svelte';
+    import Title from './components/Title.svelte';
+    import SearchBox from './components/SearchBox.svelte';
+
+
     import Layout from './Shared/Layout.svelte';
 
     let { bina, records, search = '' } = $props();
     let isResident = $derived(page?.props?.userType === 'resident');
-    let query = $state('');
+    //let query = $state('');
     let selectedRecord = $state(null);
     let listUrl = $derived(isResident ? '/resident-status/gelirler' : '/durum/gelirler');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
+
+
+
+
+
+
+
+    let clearSearchIcon = $state(false);
+
     $effect(() => {
-        query = search;
+        if (search) {
+            clearSearchIcon = true;
+
+            if (search && search.length > 2) {
+                doSearch();
+            }
+        } else {
+            clearSearchIcon = false;
+            doSearch();
+        }
+
     });
+
+    function doSearch() {
+        router.get(
+            "/durum/gelirler",
+            {
+                search: search,
+            },
+            {
+                preserveState: true,
+                replace: true, // Prevents flooding browser history with every single keystroke
+                preserveScroll: true,
+            },
+        );
+    }
+
+
+
+
+
+
+
+
+
+
+
 </script>
 
 <svelte:head>
@@ -21,12 +69,10 @@
 </svelte:head>
 
 <Layout>
-    <main class="section">
-        <div class="container">
-            <header class="my-6">
-                <h1 class="title has-text-weight-light is-size-1">Gelirler</h1>
-                <h2 class="subtitle has-text-weight-light">{bina?.name}: Gelir Kayıtları</h2>
-            </header>
+
+    <div class="section container">
+
+            <Title title="Gelirler" subtitle="Ayrıntılı Gelir Kayıtları"/>
 
             {#if isResident}
                 <div class="notification is-info is-light">Bu alan yalnızca görüntüleme içindir.</div>
@@ -41,20 +87,11 @@
                     {/if}
                 </div>
                 <div class="level-right">
-                    <form method="GET" action={listUrl} class="field has-addons">
-                        <div class="control has-icons-left">
-                            <input class="input" name="search" bind:value={query} placeholder="Ara" aria-label="Gelirlerde ara">
-                            <Search size={16} class="icon is-left" />
-                        </div>
-                        <div class="control">
-                            <button class="button" type="submit">Ara</button>
-                        </div>
-                        {#if search}
-                            <div class="control">
-                                <a class="button" href={listUrl} aria-label="Aramayı temizle"><X size={18} /></a>
-                            </div>
-                        {/if}
-                    </form>
+
+                        <SearchBox bind:query={search} placeholder="Ara..." />
+
+
+
                 </div>
             </div>
 
@@ -66,12 +103,11 @@
                             <tr>
                                 <th>No</th>
                                 <th>Kapı No</th>
-                                <th>Borçlu</th>
+                                <th>Kaynak</th>
                                 <th>Açıklama</th>
                                 <th class="has-text-right">Tutar</th>
                                 {#if !isResident}
                                     <th>&nbsp;</th>
-                                    <th class="has-text-right">Dosya</th>
                                 {/if}
                                 <th class="has-text-right">İşlemler</th>
                             </tr>
@@ -88,16 +124,16 @@
                                         <td>
                                             <button class="button is-white p-1" type="button" aria-label="Dosya ekle"
                                                 onclick={() => selectedRecord = record.id}>
-                                                <Plus size={18} />
+                                                <Paperclip size={18} />
                                             </button>
-                                        </td>
-                                        <td class="has-text-right">
+
                                             {#each record.files as file}
                                                 <a href={`/kayit-dosya-gor/${file.id}`} class="ml-2" title={file.name}>
                                                     <File size={18} />
                                                 </a>
                                             {/each}
                                         </td>
+
                                     {/if}
                                     <td class="has-text-right">
                                         {#if isResident}
@@ -122,8 +158,7 @@
             {:else}
                 <div class="notification is-warning is-light">Gelir kaydı yoktur</div>
             {/if}
-        </div>
-    </main>
+    </div>
 
     {#if selectedRecord}
         <div class="modal is-active">

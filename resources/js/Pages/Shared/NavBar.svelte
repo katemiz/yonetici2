@@ -14,8 +14,10 @@
         TurkishLira,
         ReceiptTurkishLira,
         Database,
-        User,
+        Settings,
     } from '@lucide/svelte';
+
+    let iconColor = '#f9c80e';
 
     let user = $derived(page?.props?.auth?.user ?? null);
     let userType = $derived(page?.props?.userType ?? 'guest');
@@ -26,7 +28,7 @@
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 </script>
 
-<nav class="navbar is-light" aria-label="main navigation">
+<nav class="navbar is-dark" aria-label="main navigation">
     <div class="container is-fluid">
         <div class="navbar-brand">
             <a href="/" class="navbar-item">
@@ -68,12 +70,12 @@
                         </div>
                     </div>
                     <a href="/durum/gelirler" class="navbar-item">
-                    <BanknoteArrowDown class="menu-icon" />Gelir
+                    <BanknoteArrowDown class="menu-icon" color="{iconColor}"/>Gelir
                     </a>
                     <a href="/durum/giderler" class="navbar-item">
-                    <BanknoteArrowUp class="menu-icon" />Gider</a>
+                    <BanknoteArrowUp class="menu-icon" color="{iconColor}"/>Gider</a>
                     <a href="/durum/verecekler" class="navbar-item">
-                    <ReceiptTurkishLira class="menu-icon" />Faturalar</a>
+                    <ReceiptTurkishLira class="menu-icon" color="{iconColor}"/>Faturalar</a>
                     <div class="navbar-item has-dropdown is-hoverable">
                         <a class="navbar-link" href="/kayit-form/aidat">Kayıtlar</a>
                         <div class="navbar-dropdown">
@@ -93,21 +95,21 @@
                             <a href="/bosmakbuz" class="navbar-item">Boş Makbuz</a>
                         </div>
                     </div>
+                    {#if userType === 'superuser'}
+                        <a href="/admin/managers" class="navbar-item">Yöneticiler</a>
+                    {/if}
                 </div>
                 <div class="navbar-end">
-                    <div class="navbar-item has-dropdown is-hoverable">
-                        <a class="navbar-link user-summary" href="/bina-list">
-                            <span>{userName}</span>
-                            {#if selectedBina}
-                                <span class="is-size-6 has-text-grey-light"><small>{selectedBina}</small></span>
-                            {/if}
+                    <div class="navbar-item has-dropdown is-hoverable is-gap-0">
+                        <a class="navbar-link" href="/bina-list">
+                            {userName}
                         </a>
                         <div class="navbar-dropdown is-right">
                             <a href="/bina-list" class="navbar-item">
-                                <Building2 size={18} />Binalarım
+                                <Building2 size={18} color="blue"/>Binalarım
                             </a>
                             <a href="/help" class="navbar-item">
-                                <CircleHelp size={18} />
+                                <CircleHelp size={18} color="blue"/>
                                 Yardım
                             </a>
 
@@ -115,9 +117,9 @@
                                 <input type="hidden" name="_token" value={csrfToken}>
                                 <button type="submit" class="navbar-item">
                                     <span class="icon">
-                                        <LogOut size={18} />
+                                        <LogOut size={18} color="blue" />
                                     </span>
-                                    <span>Çıkış (Logout)</span>
+                                    <span>Çıkış</span>
                                 </button>
                             </form>
 
@@ -135,12 +137,26 @@
             </div>
         {:else}
             <div class="navbar-end">
-                <a href="/login" class="navbar-item"><LogIn class="menu-icon" />Giriş</a>
-                <a href="/register" class="navbar-item"><User class="menu-icon" />Kaydolun</a>
+                <a href="/login" class="navbar-item">
+                    <LogIn class="menu-icon" />Giriş
+                </a>
             </div>
         {/if}
     </div>
 </nav>
+
+
+{#if selectedBina}
+<div class="has-background-light is-size-7 has-text-warning has-text-right p-1 has-border">
+  <a class="button is-ghost py-0" href="/bina-view/{selectedBina}">
+    <span class="icon">
+      <Settings size="16" color="blue" />
+    </span>
+    <span>{selectedBina}</span>
+  </a>
+</div>
+
+{/if}
 
 <style>
     :global(.menu-icon) {
@@ -150,9 +166,19 @@
         margin-right: 0.4rem;
     }
 
-    :global(.user-summary) {
-        align-items: flex-end;
-        flex-direction: column;
-        justify-content: center;
+
+    /* Force override Bulma's navbar-link padding and line-height for this specific element */
+    :global(.tight-user-summary) {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: right !important;
+        gap: 0.25rem !important; /* Adjust this value (e.g., 0, 0.15rem, 0.25rem) to get the exact spacing you want */
+        line-height: 1.1 !important;
+        padding-top: 0.35rem !important;    /* Reduce Bulma's default 0.5rem padding */
+        padding-bottom: 0.35rem !important; /* Reduce Bulma's default 0.5rem padding */
     }
+
+    .has-border {
+  border-bottom: 1px solid #dbdbdb; /* Standard Bulma border color */
+}
 </style>

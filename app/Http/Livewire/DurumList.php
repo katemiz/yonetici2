@@ -45,7 +45,9 @@ class DurumList extends Component
     {
         $action = false;
 
-        $bina = Bina::find(session('bina_id'));
+        $bina = Bina::query()
+            ->accessibleTo(auth()->user())
+            ->findOrFail(session('bina_id'));
 
         if ($this->tur == 'ozet') {
             $ozet = $this->ozet($request);
@@ -160,7 +162,7 @@ class DurumList extends Component
                 'html' => (object) $html,
                 'table' => (object) $table,
                 'action' => $action,
-                'bina' => Bina::find(session('bina_id')),
+                'bina' => $bina,
                 'kayitlar' => $kayitlar,
             ]);
         }
@@ -222,19 +224,17 @@ class DurumList extends Component
 
         $q = Kayit::query()
             ->join('sakinler', 'kayitlar.sakin_id', '=', 'sakinler.id')
-            // ->where('bina_id', '=', session('bina_id'))
-            ->where('tur', '=', 'alacak')
+            ->where('kayitlar.bina_id', '=', session('bina_id'))
+            ->where('kayitlar.tur', '=', 'alacak')
             ->orderBy('sakinler.door_no','asc')
             ->orderBy($this->sortTimeField, $this->sortTimeDirection)
             ->select('kayitlar.*');
-            // ->get();
-
-        // $q->where('bina_id', '=', session('bina_id'));
-        // $q->where('tur', '=', 'alacak');
 
         if (strlen($this->search) > 0) {
-            $q->where('aciklama', 'like', '%' . $this->search . '%');
-            $q->orWhere('remarks', 'like', '%' . $this->search . '%');
+            $q->where(function ($query) {
+                $query->where('kayitlar.aciklama', 'like', '%' . $this->search . '%')
+                    ->orWhere('kayitlar.remarks', 'like', '%' . $this->search . '%');
+            });
         }
 
         return $q;
@@ -251,8 +251,10 @@ class DurumList extends Component
         );
 
         if (strlen($this->search) > 0) {
-            $q->where('aciklama', 'like', '%' . $this->search . '%');
-            $q->orWhere('remarks', 'like', '%' . $this->search . '%');
+            $q->where(function ($query) {
+                $query->where('aciklama', 'like', '%' . $this->search . '%')
+                    ->orWhere('remarks', 'like', '%' . $this->search . '%');
+            });
         }
 
         return $q->orderBy($this->sortTimeField, $this->sortTimeDirection);
@@ -271,8 +273,10 @@ class DurumList extends Component
         $q->where('tur', '=', 'gelir');
 
         if (strlen($this->search) > 0) {
-            $q->where('aciklama', 'like', '%' . $this->search . '%');
-            $q->orWhere('remarks', 'like', '%' . $this->search . '%');
+            $q->where(function ($query) {
+                $query->where('aciklama', 'like', '%' . $this->search . '%')
+                    ->orWhere('remarks', 'like', '%' . $this->search . '%');
+            });
         }
 
         return $q;
@@ -291,8 +295,10 @@ class DurumList extends Component
         $q->where('tur', '=', 'gider');
 
         if (strlen($this->search) > 0) {
-            $q->where('aciklama', 'like', '%' . $this->search . '%');
-            $q->orWhere('remarks', 'like', '%' . $this->search . '%');
+            $q->where(function ($query) {
+                $query->where('aciklama', 'like', '%' . $this->search . '%')
+                    ->orWhere('remarks', 'like', '%' . $this->search . '%');
+            });
         }
 
         return $q;
@@ -322,18 +328,34 @@ class DurumList extends Component
 
     public function alacakToGelir(Request $request, $kayitId)
     {
+        Bina::query()
+            ->accessibleTo(auth()->user())
+            ->findOrFail(session('bina_id'));
+
         $props['tur'] = 'gelir';
 
-        Kayit::find($kayitId)->update($props);
+        Kayit::query()
+            ->where('bina_id', session('bina_id'))
+            ->where('tur', 'alacak')
+            ->findOrFail($kayitId)
+            ->update($props);
 
         $request->replace(['tur' => $this->tur]);
     }
 
     public function verecekToGider(Request $request, $kayitId)
     {
+        Bina::query()
+            ->accessibleTo(auth()->user())
+            ->findOrFail(session('bina_id'));
+
         $props['tur'] = 'gider';
 
-        Kayit::find($kayitId)->update($props);
+        Kayit::query()
+            ->where('bina_id', session('bina_id'))
+            ->where('tur', 'verecek')
+            ->findOrFail($kayitId)
+            ->update($props);
 
         $request->replace(['tur' => $this->tur]);
     }

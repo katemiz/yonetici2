@@ -40,7 +40,18 @@ Route::get('lang/{lang}', [
 
 require __DIR__ . '/auth.php';
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'active.manager'])->group(function () {
+    Route::middleware('superuser')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/managers', [\App\Http\Controllers\Admin\ManagerUserController::class, 'index'])
+            ->name('managers.index');
+        Route::post('/managers', [\App\Http\Controllers\Admin\ManagerUserController::class, 'store'])
+            ->name('managers.store');
+        Route::patch('/managers/{manager}', [\App\Http\Controllers\Admin\ManagerUserController::class, 'update'])
+            ->name('managers.update');
+        Route::patch('/managers/{manager}/toggle-active', [\App\Http\Controllers\Admin\ManagerUserController::class, 'toggleActive'])
+            ->name('managers.toggle-active');
+    });
+
     Route::get('/bina-list', [BinaController::class, 'index'])->name('binalar');
     Route::get('/bina-view/{id}', [BinaController::class, 'view'])->name('binaview');
     Route::get('/bina-form', [BinaController::class, 'formBina']);

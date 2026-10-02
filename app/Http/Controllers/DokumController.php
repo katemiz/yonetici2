@@ -62,11 +62,9 @@ class DokumController extends Controller
                 return redirect()->route('binalar');
             }
 
-            $this->bina = Bina::find(session('bina_id'));
-
-            if ($this->bina->user_id !== Auth::id()) {
-                abort('403');
-            }
+            $this->bina = Bina::query()
+                ->accessibleTo(Auth::user())
+                ->findOrFail(session('bina_id'));
 
             foreach ($this->bina->sakinler as $sakin) {
                 $this->sakinler[$sakin->id] =
@@ -83,16 +81,15 @@ class DokumController extends Controller
             return redirect()->route('binalar');
         }
 
-        $this->bina = Bina::find(session('bina_id'));
-
-        if ($this->bina->user_id !== Auth::id()) {
-            abort('403');
-        }
+        $this->bina = Bina::query()
+            ->accessibleTo(Auth::user())
+            ->findOrFail(session('bina_id'));
 
         foreach ($this->bina->sakinler as $sakin) {
             $this->sakinler[$sakin->id] = $sakin->name . ' ' . $sakin->lastname;
         }
     }
+
 
     public function dokum(Request $request)
     {

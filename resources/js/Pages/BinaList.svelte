@@ -1,10 +1,42 @@
 <script>
-    import { untrack } from 'svelte';
-    import { Eye, Pencil, Plus, Search, X } from '@lucide/svelte';
+    import {  X } from '@lucide/svelte';
+    import { page, router } from '@inertiajs/svelte';
+    import { Eye, Pencil, Plus } from '@lucide/svelte';
     import Layout from './Shared/Layout.svelte';
+    import SearchBox from './components/SearchBox.svelte';
 
-    let { binalar, selectedBinaId = null, search = '', sort = 'created_at', direction = 'desc', success = null } = $props();
-    let query = $state(untrack(() => search));
+    let { binalar, selectedBinaId = null, query = '', sort = 'created_at', direction = 'desc', success = null } = $props();
+    
+    let quota = $derived(page?.props?.buildingQuota ?? null);
+    
+    let clearSearchIcon = $state(false);
+
+    $effect(() => {
+        if (query) {
+            clearSearchIcon = true;
+
+            if (query && query.length > 2) {
+                doSearch();
+            }
+        } else {
+            clearSearchIcon = false;
+            doSearch();
+        }
+    });
+
+    function doSearch() {
+        router.get(
+            "/bina-list",
+            {
+                query: query,
+            },
+            {
+                preserveState: true,
+                replace: true, // Prevents flooding browser history with every single keystroke
+                preserveScroll: true,
+            },
+        );
+    }
 
     function sortUrl(field) {
         const params = new URLSearchParams();
@@ -13,7 +45,16 @@
         params.set('direction', sort === field && direction === 'asc' ? 'desc' : 'asc');
         return `/bina-list?${params.toString()}`;
     }
+
 </script>
+
+
+
+
+
+
+
+
 
 <svelte:head>
     <title>Binalarım - Akıllı Yönetici</title>
@@ -33,30 +74,21 @@
         <nav class="level my-6">
             <div class="level-left">
                 <div class="level-item">
-                    <a href="/bina-form" class="button is-link">
-                        <span class="icon is-small"><Plus size={18} /></span>
-                        <span>Bina Ekle</span>
-                    </a>
+                    {#if !quota || quota.used < quota.limit}
+                        <a href="/bina-form" class="button is-link">
+                            <span class="icon is-small"><Plus size={18} /></span>
+                            <span>Bina Ekle</span>
+                        </a>
+                    {:else}
+                        <p class="has-text-warning-dark">Bina kotanız dolu ({quota.used}/{quota.limit}).</p>
+                    {/if}
                 </div>
             </div>
-            {#if binalar.total > 0}
                 <div class="level-right">
                     <div class="level-item">
-                        <form method="GET" action="/bina-list" class="field has-addons">
-                            <div class="control has-icons-left">
-                                <input class="input" type="search" name="search" placeholder="Ara..." bind:value={query} aria-label="Binalarda ara">
-                                <span class="icon is-small is-left"><Search size={16} /></span>
-                            </div>
-                            <input type="hidden" name="sort" value={sort}>
-                            <input type="hidden" name="direction" value={direction}>
-                            <div class="control"><button class="button" type="submit">Ara</button></div>
-                            {#if search}
-                                <div class="control"><a class="button px-1" href="/bina-list" aria-label="Aramayı temizle"><X size={18} /></a></div>
-                            {/if}
-                        </form>
+                        <SearchBox bind:query={query} placeholder="Ara..." />
                     </div>
                 </div>
-            {/if}
         </nav>
 
         {#if binalar.total > 0}

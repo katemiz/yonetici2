@@ -29,7 +29,9 @@ class OkumaList extends Component
             return redirect('/bina-list');
         }
 
-        $this->bina = Bina::find(session('bina_id'));
+        $this->bina = Bina::query()
+            ->accessibleTo(Auth::user())
+            ->findOrFail(session('bina_id'));
         $this->sakinler = $this->bina->sakinler;
         $this->okumali_bedeller = Bedel::query()
             ->where('bina_id', '=', session('bina_id'))
@@ -39,11 +41,6 @@ class OkumaList extends Component
 
     public function render(Request $req)
     {
-        if ($this->bina->user_id !== Auth::id()) {
-            dd('olmadi');
-            abort('404');
-        }
-
         // $q = $this->getSakinler($req);
 
         return view('kayit.okumalar-gor');
