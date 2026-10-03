@@ -1,15 +1,16 @@
 <script>
-    import { untrack } from 'svelte';
-    import { File, Plus, Wallet } from '@lucide/svelte';
-    import { router } from '@inertiajs/svelte';
-    import Paginate from './components/Paginate.svelte';
-    import SearchBox from './components/SearchBox.svelte';
-    import Layout from './Shared/Layout.svelte';
+    import { untrack } from "svelte";
+    import { File, Plus, Wallet } from "@lucide/svelte";
+    import { router } from "@inertiajs/svelte";
+    import Paginate from "./components/Paginate.svelte";
+    import SearchBox from "./components/SearchBox.svelte";
+    import Layout from "./Shared/Layout.svelte";
 
-    let { bina, records, search = '' } = $props();
+    let { bina, records, search = "" } = $props();
     let query = $state(untrack(() => search));
     let selectedRecord = $state(null);
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    const csrfToken =
+        document.querySelector('meta[name="csrf-token"]')?.content ?? "";
     let skipInitialSearch = true;
 
     $effect(() => {
@@ -25,29 +26,38 @@
 
     function doSearch(query) {
         router.get(
-            '/durum/verecekler',
+            "/durum/verecekler",
             { search: query },
             { preserveState: true, replace: true, preserveScroll: true },
         );
     }
 
     function markPaid(id) {
-        if (confirm('Bu fatura/borç gider kaydına dönüştürülecektir. Onaylıyor musunuz?')) {
+        if (
+            confirm(
+                "Bu fatura/borç gider kaydına dönüştürülecektir. Onaylıyor musunuz?",
+            )
+        ) {
             document.getElementById(`paid-${id}`).submit();
         }
     }
 </script>
 
 <svelte:head>
-    <title>Ödenecek Fatura ve Borçlar - {bina?.name ?? 'Akıllı Yönetici'}</title>
+    <title>Ödenecek Fatura ve Borçlar - {bina?.name ?? "Akıllı Yönetici"}</title
+    >
 </svelte:head>
 
 <Layout>
     <main class="section">
         <div class="container">
             <header class="my-6">
-                <h1 class="title has-text-weight-light is-size-1">Ödenecek Fatura ve Borçlar</h1>
-                <h2 class="subtitle has-text-weight-light">{bina?.name}: Verecek Kayıtları</h2>
+                <h1 class="title has-text-weight-light is-size-1">
+                    Ödenecek Fatura ve Borçlar
+                </h1>
+                <h2 class="subtitle has-text-weight-light">
+                    {bina?.name}: Verecek Kayıtları
+                </h2>
             </header>
 
             <div class="level mb-5">
@@ -58,7 +68,11 @@
                 </div>
                 <div class="level-right">
                     <div class="field">
-                        <SearchBox bind:query={query} placeholder="Ara..." ariaLabel="Ödenecek kayıtlarda ara" />
+                        <SearchBox
+                            bind:query
+                            placeholder="Ara..."
+                            ariaLabel="Ödenecek kayıtlarda ara"
+                        />
                     </div>
                 </div>
             </div>
@@ -66,7 +80,9 @@
             {#if records.total > 0}
                 <div class="table-container">
                     <table class="table is-fullwidth">
-                        <caption>Toplam <b>{records.total}</b> kayıt vardır</caption>
+                        <caption
+                            >Toplam <b>{records.total}</b> kayıt vardır</caption
+                        >
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -81,28 +97,58 @@
                         <tbody>
                             {#each records.data as record}
                                 <tr>
-                                    <td><a href={`/kayit-gor/${record.id}`}>{record.id}</a></td>
-                                    <td>{@html record.description ?? ''}</td>
-                                    <td class="has-text-right td-tutar">{record.amount} {bina.pbirimi}</td>
+                                    <td
+                                        ><a href={`/kayit-gor/${record.id}`}
+                                            >{record.id}</a
+                                        ></td
+                                    >
+                                    <td>{@html record.description ?? ""}</td>
+                                    <td class="has-text-right td-tutar"
+                                        >{record.amount} {bina.pbirimi}</td
+                                    >
                                     <td>
-                                        <button class="button is-white p-1" type="button" aria-label="Dosya ekle"
-                                            onclick={() => selectedRecord = record.id}>
+                                        <button
+                                            class="button is-white p-1"
+                                            type="button"
+                                            aria-label="Dosya ekle"
+                                            onclick={() =>
+                                                (selectedRecord = record.id)}
+                                        >
                                             <Plus size={18} />
                                         </button>
                                     </td>
                                     <td class="has-text-right">
                                         {#each record.files as file}
-                                            <a href={file.url ?? `/kayit-dosya-gor/${file.id}`} class="ml-2" title={file.name}>
+                                            <a
+                                                href={file.url ??
+                                                    `/kayit-dosya-gor/${file.id}`}
+                                                class="ml-2"
+                                                title={file.name}
+                                            >
                                                 <File size={18} />
                                             </a>
                                         {/each}
                                     </td>
-                                    <td>{record.due_date ?? ''}</td>
+                                    <td>{record.due_date ?? ""}</td>
                                     <td class="has-text-right">
-                                        <form id={`paid-${record.id}`} method="POST" action={`/durum/verecekler/${record.id}/paid`}>
-                                            <input type="hidden" name="_token" value={csrfToken}>
-                                            <button class="button is-white p-1" type="button" title="Ödendi"
-                                                aria-label="Ödendi" onclick={() => markPaid(record.id)}>
+                                        <form
+                                            id={`paid-${record.id}`}
+                                            method="POST"
+                                            action={`/durum/verecekler/${record.id}/paid`}
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="_token"
+                                                value={csrfToken}
+                                            />
+                                            <button
+                                                class="button is-white p-1"
+                                                type="button"
+                                                title="Ödendi"
+                                                aria-label="Ödendi"
+                                                onclick={() =>
+                                                    markPaid(record.id)}
+                                            >
                                                 <Wallet size={18} />
                                             </button>
                                         </form>
@@ -113,9 +159,11 @@
                     </table>
                 </div>
 
-                <Paginate items={records} query={query} />
+                <Paginate items={records} {query} />
             {:else}
-                <div class="notification is-warning is-light">Ödenecek Fatura ve Borç Kaydı Yoktur</div>
+                <div class="notification is-warning is-light">
+                    Ödenecek Fatura ve Borç Kaydı Yoktur
+                </div>
             {/if}
         </div>
     </main>
@@ -126,16 +174,37 @@
             <div class="modal-card">
                 <header class="modal-card-head">
                     <p class="modal-card-title">Kayıtlara Dosya Ekleme</p>
-                    <button class="delete" aria-label="close" onclick={() => selectedRecord = null}></button>
+                    <button
+                        class="delete"
+                        aria-label="close"
+                        onclick={() => (selectedRecord = null)}
+                    ></button>
                 </header>
-                <form method="POST" action={`/kayit-dosya-add/${selectedRecord}/verecekler`} enctype="multipart/form-data">
-                    <input type="hidden" name="_token" value={csrfToken}>
+                <form
+                    method="POST"
+                    action={`/kayit-dosya-add/${selectedRecord}/verecekler`}
+                    enctype="multipart/form-data"
+                >
+                    <input type="hidden" name="_token" value={csrfToken} />
                     <section class="modal-card-body">
-                        <input class="file-input" type="file" name="dosyalar[]" multiple required>
+                        <input
+                            class="file-input"
+                            type="file"
+                            name="dosyalar[]"
+                            multiple
+                            required
+                        />
                     </section>
                     <footer class="modal-card-foot">
-                        <button class="button is-success" type="submit">Yükle</button>
-                        <button class="button" type="button" onclick={() => selectedRecord = null}>İptal</button>
+                        <button class="button is-success" type="submit"
+                            >Yükle</button
+                        >
+                        <button
+                            class="button"
+                            type="button"
+                            onclick={() => (selectedRecord = null)}
+                            >İptal</button
+                        >
                     </footer>
                 </form>
             </div>

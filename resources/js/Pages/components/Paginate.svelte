@@ -2,13 +2,13 @@
     import { Link } from "@inertiajs/svelte";
     import { ChevronLeft, ChevronRight } from "@lucide/svelte";
 
-    let { items, query = '' } = $props();
+    let { items, query = "" } = $props();
 
     function pageUrl(url) {
         if (!url || !query) return url;
 
-        const parsedUrl = new URL(url, 'http://localhost');
-        parsedUrl.searchParams.set('search', query);
+        const parsedUrl = new URL(url, "http://localhost");
+        parsedUrl.searchParams.set("search", query);
         return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
     }
 
@@ -25,63 +25,63 @@
 
 {#if items.total > items.per_page}
     {#key `${query}:${items.current_page}`}
-    <nav class="pagination is-centered">
-        {#if prevLink?.url}
-            <Link
-                href={pageUrl(prevLink.url)}
-                class="pagination-previous"
-                preserveScroll
-                preserveState
-            >
-                <ChevronLeft size="18" />
-            </Link>
-        {:else}
-            <span
-                class="pagination-previous is-disabled"
-                title="This is the first page"
-            >
-                <ChevronLeft size="18" />
-            </span>
-        {/if}
+        <nav class="pagination is-centered">
+            {#if prevLink?.url}
+                <Link
+                    href={pageUrl(prevLink.url)}
+                    class="pagination-previous"
+                    preserveScroll
+                    preserveState
+                >
+                    <ChevronLeft size="18" />
+                </Link>
+            {:else}
+                <span
+                    class="pagination-previous is-disabled"
+                    title="This is the first page"
+                >
+                    <ChevronLeft size="18" />
+                </span>
+            {/if}
 
-        {#if nextLink?.url}
-            <Link
-                href={pageUrl(nextLink.url)}
-                class="pagination-next"
-                preserveScroll
-                preserveState
-            >
-                <ChevronRight size="18" />
-            </Link>
-        {:else}
-            <span
-                class="pagination-next is-disabled"
-                title="This is the last page"
-            >
-                <ChevronRight size="18" />
-            </span>
-        {/if}
+            {#if nextLink?.url}
+                <Link
+                    href={pageUrl(nextLink.url)}
+                    class="pagination-next"
+                    preserveScroll
+                    preserveState
+                >
+                    <ChevronRight size="18" />
+                </Link>
+            {:else}
+                <span
+                    class="pagination-next is-disabled"
+                    title="This is the last page"
+                >
+                    <ChevronRight size="18" />
+                </span>
+            {/if}
 
-        <ul class="pagination-list">
-            {#each pageLinks as link}
-                <li>
-                    {#if link.url === null}
-                        <span class="pagination-ellipsis">&hellip;</span>
-                    {:else}
-                        <Link
-                            href={pageUrl(link.url)}
-                            class="pagination-link {link.active
-                                ? 'is-current'
-                                : ''}"
-                            preserveScroll
-                            preserveState
-                        >
-                            {@html link.label}
-                        </Link>
-                    {/if}
-                </li>
-            {/each}
-        </ul>
-    </nav>
+            <ul class="pagination-list">
+                {#each pageLinks as link}
+                    <li>
+                        {#if link.url === null}
+                            <span class="pagination-ellipsis">&hellip;</span>
+                        {:else}
+                            <Link
+                                href={pageUrl(link.url)}
+                                class="pagination-link {link.active
+                                    ? 'is-current'
+                                    : ''}"
+                                preserveScroll
+                                preserveState
+                            >
+                                {@html link.label}
+                            </Link>
+                        {/if}
+                    </li>
+                {/each}
+            </ul>
+        </nav>
     {/key}
 {/if}

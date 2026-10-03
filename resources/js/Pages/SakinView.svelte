@@ -1,6 +1,6 @@
 <script>
-    import { ArrowLeft, Pencil } from '@lucide/svelte';
-    import Layout from './Shared/Layout.svelte';
+    import { ArrowLeft, Pencil } from "@lucide/svelte";
+    import Layout from "./Shared/Layout.svelte";
 
     let { bina, sakin, durum } = $props();
 </script>
@@ -31,36 +31,60 @@
                             <table class="table is-fullwidth">
                                 <tbody>
                                     <tr>
-                                        <td class="has-text-grey has-text-right">Kapı Numarası</td>
+                                        <td class="has-text-grey has-text-right"
+                                            >Kapı Numarası</td
+                                        >
                                         <td>{sakin.door_no}</td>
                                     </tr>
                                     <tr>
-                                        <td class="has-text-grey has-text-right">Ev Sahipliği Durumu</td>
-                                        <td>{sakin.is_evsahibi ? 'Ev Sahibi' : 'Kiracı'}</td>
+                                        <td class="has-text-grey has-text-right"
+                                            >Ev Sahipliği Durumu</td
+                                        >
+                                        <td
+                                            >{sakin.is_evsahibi
+                                                ? "Ev Sahibi"
+                                                : "Kiracı"}</td
+                                        >
                                     </tr>
                                     <tr>
-                                        <td class="has-text-grey has-text-right">Telefon</td>
+                                        <td class="has-text-grey has-text-right"
+                                            >Telefon</td
+                                        >
                                         <td>{sakin.phone}</td>
                                     </tr>
                                     <tr>
-                                        <td class="has-text-grey has-text-right">E-Posta</td>
+                                        <td class="has-text-grey has-text-right"
+                                            >E-Posta</td
+                                        >
                                         <td>{sakin.email}</td>
                                     </tr>
                                     <tr>
-                                        <td class="has-text-grey has-text-right">Giriş Tarihi</td>
+                                        <td class="has-text-grey has-text-right"
+                                            >Giriş Tarihi</td
+                                        >
                                         <td>{sakin.giris_tarihi}</td>
                                     </tr>
                                     <tr>
-                                        <td class="has-text-grey has-text-right">Ödeme Oranı</td>
+                                        <td class="has-text-grey has-text-right"
+                                            >Ödeme Oranı</td
+                                        >
                                         <td>% {sakin.payratio}</td>
                                     </tr>
                                     <tr>
-                                        <td class="has-text-grey has-text-right">Notlar/Diğer Bilgiler</td>
-                                        <td>{@html sakin.remarks ?? ''}</td>
+                                        <td class="has-text-grey has-text-right"
+                                            >Notlar/Diğer Bilgiler</td
+                                        >
+                                        <td>{@html sakin.remarks ?? ""}</td>
                                     </tr>
                                     <tr>
-                                        <td class="has-text-grey has-text-right">Durum</td>
-                                        <td>{sakin.is_active ? durum['1'] : durum['0']}</td>
+                                        <td class="has-text-grey has-text-right"
+                                            >Durum</td
+                                        >
+                                        <td
+                                            >{sakin.is_active
+                                                ? durum["1"]
+                                                : durum["0"]}</td
+                                        >
                                     </tr>
                                 </tbody>
                             </table>
@@ -70,7 +94,10 @@
             </div>
 
             <footer class="card-footer">
-                <a href={`/sakin-form/${bina.id}/${sakin.id}`} class="card-footer-item">
+                <a
+                    href={`/sakin-form/${bina.id}/${sakin.id}`}
+                    class="card-footer-item"
+                >
                     <Pencil size={18} />&nbsp;Değiştir
                 </a>
             </footer>

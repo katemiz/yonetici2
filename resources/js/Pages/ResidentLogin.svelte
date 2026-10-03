@@ -1,8 +1,16 @@
 <script>
-    import { LogIn } from '@lucide/svelte';
+    import { LogIn } from "@lucide/svelte";
 
-    let { phone = '', locale = 'tr', loginLogo, appName, company, errors = {} } = $props();
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    let {
+        phone = "",
+        locale = "tr",
+        loginLogo,
+        appName,
+        company,
+        errors = {},
+    } = $props();
+    const csrfToken =
+        document.querySelector('meta[name="csrf-token"]')?.content ?? "";
 
     function firstError(field) {
         const error = errors?.[field];
@@ -17,18 +25,29 @@
 <main class="resident-login-page">
     <section class="section container is-max-desktop">
         <div class="column is-half is-offset-one-quarter">
-            <nav class="breadcrumb has-bullet-separator is-right" aria-label="Dil seçimi">
+            <nav
+                class="breadcrumb has-bullet-separator is-right"
+                aria-label="Dil seçimi"
+            >
                 <ul>
-                    <li class:is-active={locale === 'tr'}><a href="/lang/tr">TR</a></li>
-                    <li class:is-active={locale === 'en'}><a href="/lang/en">EN</a></li>
+                    <li class:is-active={locale === "tr"}>
+                        <a href="/lang/tr">TR</a>
+                    </li>
+                    <li class:is-active={locale === "en"}>
+                        <a href="/lang/en">EN</a>
+                    </li>
                 </ul>
             </nav>
         </div>
 
-        <div class="column is-half is-offset-one-quarter has-background-white resident-login-card">
-            <div class="column is-offset-3 is-offset-4-mobile is-6 is-4-mobile my-6">
+        <div
+            class="column is-half is-offset-one-quarter has-background-white resident-login-card"
+        >
+            <div
+                class="column is-offset-3 is-offset-4-mobile is-6 is-4-mobile my-6"
+            >
                 <figure class="image">
-                    <img src={`/images/${loginLogo}`} alt={appName}>
+                    <img src={`/images/${loginLogo}`} alt={appName} />
                 </figure>
             </div>
 
@@ -41,7 +60,7 @@
             {/if}
 
             <form method="POST" action="/resident-login" class="mx-4">
-                <input type="hidden" name="_token" value={csrfToken}>
+                <input type="hidden" name="_token" value={csrfToken} />
 
                 <div class="field">
                     <label class="label" for="phone">Telefon numarası</label>
@@ -55,15 +74,17 @@
                             placeholder="+90 5xx xxx xx xx"
                             autocomplete="tel"
                             required
-                        >
+                        />
                     </div>
-                    {#if firstError('phone')}
-                        <p class="help is-danger">{firstError('phone')}</p>
+                    {#if firstError("phone")}
+                        <p class="help is-danger">{firstError("phone")}</p>
                     {/if}
                 </div>
 
                 <div class="field">
-                    <label class="label" for="building_code">Kapı Giriş Şifresi</label>
+                    <label class="label" for="building_code"
+                        >Kapı Giriş Şifresi</label
+                    >
                     <div class="control">
                         <input
                             id="building_code"
@@ -72,26 +93,31 @@
                             type="password"
                             autocomplete="current-password"
                             required
-                        >
+                        />
                     </div>
-                    {#if firstError('building_code')}
-                        <p class="help is-danger">{firstError('building_code')}</p>
+                    {#if firstError("building_code")}
+                        <p class="help is-danger">
+                            {firstError("building_code")}
+                        </p>
                     {/if}
                 </div>
 
-                <button class="button is-link mt-6 mb-2 is-fullwidth" type="submit">
+                <button
+                    class="button is-link mt-6 mb-2 is-fullwidth"
+                    type="submit"
+                >
                     <span class="icon"><LogIn size={18} /></span>
                     <span>Giriş yap</span>
                 </button>
 
-                <a href="/login" class="button is-link is-outlined is-fullwidth mb-4">Yönetici girişi</a>
+                <!-- <a href="/login" class="button is-link is-outlined is-fullwidth mb-4">Yönetici girişi</a> -->
             </form>
         </div>
 
         <div class="column is-half is-offset-one-quarter">
             <a href={company.link} class="button is-small is-ghost">
                 <span class="icon is-small">
-                    <img src={`/images/${company.logo}`} alt={company.name}>
+                    <img src={`/images/${company.logo}`} alt={company.name} />
                 </span>
                 <span>{company.name}</span>
             </a>

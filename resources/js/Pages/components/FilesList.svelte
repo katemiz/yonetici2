@@ -19,7 +19,9 @@
     let { media = [] } = $props();
 
     function deleteFile(file) {
-        if (confirm(`Are you sure you want to delete this file: ${file.name}`)) {
+        if (
+            confirm(`Are you sure you want to delete this file: ${file.name}`)
+        ) {
             router.delete(file.deleteUrl ?? `/media-delete/${file.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
