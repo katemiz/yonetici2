@@ -2,7 +2,15 @@
     import { Link } from "@inertiajs/svelte";
     import { ChevronLeft, ChevronRight } from "@lucide/svelte";
 
-    let { items } = $props();
+    let { items, query = '' } = $props();
+
+    function pageUrl(url) {
+        if (!url || !query) return url;
+
+        const parsedUrl = new URL(url, 'http://localhost');
+        parsedUrl.searchParams.set('search', query);
+        return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+    }
 
     // 1. Get all links
     let allLinks = $derived(items.links || []);
@@ -16,10 +24,11 @@
 </script>
 
 {#if items.total > items.per_page}
+    {#key `${query}:${items.current_page}`}
     <nav class="pagination is-centered">
         {#if prevLink?.url}
             <Link
-                href={prevLink.url}
+                href={pageUrl(prevLink.url)}
                 class="pagination-previous"
                 preserveScroll
                 preserveState
@@ -37,7 +46,7 @@
 
         {#if nextLink?.url}
             <Link
-                href={nextLink.url}
+                href={pageUrl(nextLink.url)}
                 class="pagination-next"
                 preserveScroll
                 preserveState
@@ -60,7 +69,7 @@
                         <span class="pagination-ellipsis">&hellip;</span>
                     {:else}
                         <Link
-                            href={link.url}
+                            href={pageUrl(link.url)}
                             class="pagination-link {link.active
                                 ? 'is-current'
                                 : ''}"
@@ -74,4 +83,5 @@
             {/each}
         </ul>
     </nav>
+    {/key}
 {/if}

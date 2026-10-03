@@ -87,7 +87,7 @@
                         <th>Dosyalar</th>
                         <td class="has-text-left">
                             {#each record.files as file}
-                                <a href={`/kayit-dosya-gor/${file.id}`} class="icon-text file-link">
+                                <a href={file.url ?? `/kayit-dosya-gor/${file.id}`} class="icon-text file-link">
                                     <FileText size={18} />
                                     <span>{file.name}</span>
                                 </a>

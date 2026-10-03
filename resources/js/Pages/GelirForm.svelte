@@ -1,15 +1,20 @@
 <script>
-    import { onMount } from 'svelte';
-    import { FileUp } from '@lucide/svelte';
+    import { onMount, untrack } from 'svelte';
+    import { useForm } from '@inertiajs/svelte';
     import Layout from './Shared/Layout.svelte';
     import FilesList from './components/FilesList.svelte';
+    import FormUpload from './components/FormUpload.svelte';
 
-    let { bina, kayit = null, errors = {} } = $props();
-    let notes = $state('');
-    let files = $state([]);
+    let { bina, kayit = null } = $props();
+    let initialNotes = untrack(() => kayit?.remarks ?? '');
+    let notes = $state(initialNotes);
+    let form = $state(useForm({
+        aciklama: untrack(() => kayit?.aciklama ?? ''),
+        tutar: untrack(() => kayit?.tutar ?? ''),
+        editor_data: initialNotes,
+        dosyalar: [],
+    }));
     let editorError = $state('');
-
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
     onMount(() => {
         let editor;
@@ -52,8 +57,18 @@
         };
     });
 
-    function updateFiles(event) {
-        files = Array.from(event.currentTarget.files ?? []);
+    function firstError(field) {
+        const error = form.errors?.[field];
+        return Array.isArray(error) ? error[0] : error;
+    }
+
+    function submitForm(event) {
+        event.preventDefault();
+        form.editor_data = notes;
+        form.post(
+            kayit ? `/kayit-update/gelir/${kayit.id}` : '/kayit-add/gelir',
+            { forceFormData: true },
+        );
     }
 </script>
 
@@ -68,9 +83,7 @@
         </h1>
         <h2 class="subtitle">Gelir Kaydı</h2>
 
-        <form action={kayit ? `/kayit-update/gelir/${kayit.id}` : '/kayit-add/gelir'} method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="_token" value={csrfToken}>
-            <input type="hidden" name="editor_data" value={notes}>
+        <form onsubmit={submitForm}>
 
             <div class="box">
                 <div class="columns">
@@ -80,25 +93,24 @@
                             <input
                                 class="input"
                                 id="description"
-                                name="aciklama"
                                 type="text"
                                 placeholder="Açıklama"
                                 required
-                                value={kayit?.aciklama ?? ''}
+                                bind:value={form.aciklama}
                             >
                         </div>
-                        {#if errors.aciklama}
-                            <p class="help has-text-danger">{errors.aciklama[0]}</p>
+                        {#if firstError('aciklama')}
+                            <p class="help has-text-danger">{firstError('aciklama')}</p>
                         {/if}
                     </div>
 
                     <div class="column field">
                         <label class="label" for="amount">Tutar, {bina.pbirimi}</label>
                         <div class="control">
-                            <input class="input" id="amount" name="tutar" type="text" placeholder="650,25 örnek" required value={kayit?.tutar ?? ''}>
+                            <input class="input" id="amount" type="text" placeholder="650,25 örnek" required bind:value={form.tutar}>
                         </div>
-                        {#if errors.tutar}
-                            <p class="help has-text-danger">{errors.tutar[0]}</p>
+                        {#if firstError('tutar')}
+                            <p class="help has-text-danger">{firstError('tutar')}</p>
                         {/if}
                     </div>
                 </div>
@@ -111,51 +123,18 @@
                     {/if}
                 </div>
 
-                <div class="column box mt-6">
-                    <div class="columns">
-                        <div class="column is-2">
-                            <div class="file is-boxed">
-                                <label class="file-label">
-                                    <input class="file-input" type="file" name="dosyalar[]" multiple onchange={updateFiles}>
-                                    <span class="file-cta">
-                                        <span class="file-icon">
-                                            <FileUp size={20} />
-                                        </span>
-                                        <span class="file-label">Dosyalar</span>
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="column">
-
-
-                            <FilesList media={files} modelType="material" modelId={1} collectionName="gallery_images" />
-
-                            <table class="table is-striped is-fullwidth">
-                                <tbody>
-                                    {#each files as file}
-                                        <tr>
-                                            <td>{file.name}</td>
-                                            <td>{file.size}</td>
-                                            <td>{file.type}</td>
-                                        </tr>
-                                    {/each}
-                                </tbody>
-                                {#if files.length === 0}
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="4" class="has-text-centered">Henüz seçilmiş dosya yok!</td>
-                                        </tr>
-                                    </tfoot>
-                                {/if}
-                            </table>
-                        </div>
+                {#if kayit?.files?.length}
+                    <div class="column box mt-6">
+                        <FilesList media={kayit.files} />
                     </div>
+                {/if}
+
+                <div class="column box mt-6">
+                    <FormUpload bind:form={form} name="dosyalar" label="Dosyalar" multiple maxSize={10} />
                 </div>
 
                 <div class="buttons is-right">
-                    <button class="button is-link" type="submit">{kayit ? 'Güncelle' : 'Kaydet'}</button>
+                    <button class="button is-link" type="submit" disabled={form.processing}>{kayit ? 'Güncelle' : 'Kaydet'}</button>
                 </div>
             </div>
         </form>

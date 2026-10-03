@@ -21,9 +21,11 @@
 
     let user = $derived(page?.props?.auth?.user ?? null);
     let userType = $derived(page?.props?.userType ?? 'guest');
+    let userTypeLabel = $derived(userType === 'resident' ? 'Sakin' : userType === 'superuser' ? 'SuperUser' : 'Yönetici');
     let isResident = $derived(userType === 'resident');
     let resident = $derived(page?.props?.resident ?? null);
     let selectedBina = $derived(page?.props?.selected_bina ?? null);
+    let selectedBinaId = $derived(page?.props?.selected_bina_id ?? null);
     let userName = $derived(user ? `${user.name ?? ''} ${user.lastname ?? ''}`.trim() : '');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 </script>
@@ -146,13 +148,13 @@
 </nav>
 
 
-{#if selectedBina}
+{#if selectedBina && selectedBinaId}
 <div class="has-background-light is-size-7 has-text-warning has-text-right p-1 has-border">
-  <a class="button is-ghost py-0" href="/bina-view/{selectedBina}">
+    <a class="button is-ghost py-0" href="/bina-view/{selectedBinaId}">
     <span class="icon">
       <Settings size="16" color="blue" />
     </span>
-    <span>{selectedBina}</span>
+    <span>{selectedBina} - {userTypeLabel}</span>
   </a>
 </div>
 

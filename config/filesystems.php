@@ -36,6 +36,12 @@ return [
             'throw' => false,
         ],
 
+        'private_media' => [
+            'driver' => 'local',
+            'root' => env('MEDIA_UPLOADS_PATH') ?: dirname(base_path()) . '/private-media',
+            'throw' => true,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

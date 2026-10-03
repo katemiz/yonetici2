@@ -5,6 +5,9 @@
 
     let { bina, sakin = null, durum, oldInput = {}, errors = {} } = $props();
     let notes = $state(untrack(() => oldInput.editor_data ?? sakin?.remarks ?? ''));
+    const localDate = new Date();
+    localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+    const today = localDate.toISOString().slice(0, 10);
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
     const title = $derived(sakin ? 'Bilgi Güncelle' : 'Bina Sakini Ekle');
 
@@ -93,6 +96,7 @@
                                 name="isim"
                                 type="text"
                                 placeholder="ad"
+                                required
                                 value={value('isim', sakin?.name)}
                             >
                         </div>
@@ -108,6 +112,7 @@
                                 name="soyisim"
                                 type="text"
                                 placeholder="soyad"
+                                required
                                 value={value('soyisim', sakin?.lastname)}
                             >
                         </div>
@@ -123,8 +128,9 @@
                                 class="input"
                                 id="door-number"
                                 name="door_no"
-                                type="number"
+                                type="text"
                                 placeholder="kapı numarası"
+                                required
                                 value={value('door_no', sakin?.door_no)}
                             >
                         </div>
@@ -135,12 +141,12 @@
                         <legend class="label">Ev Sahibi/Kiracı</legend>
                         <div class="control">
                             <label class="radio">
-                                <input type="radio" name="sahiplik" value="1" checked={isSelected('sahiplik', '1', sakin?.is_evsahibi)}>
+                                <input type="radio" name="sahiplik" value="1" required checked={isSelected('sahiplik', '1', sakin?.is_evsahibi)}>
                                 Ev Sahibi
                             </label>
                             <br>
                             <label class="radio">
-                                <input type="radio" name="sahiplik" value="0" checked={isSelected('sahiplik', '0', sakin?.is_evsahibi)}>
+                                <input type="radio" name="sahiplik" value="0" required checked={isSelected('sahiplik', '0', sakin?.is_evsahibi)}>
                                 Kiracı
                             </label>
                         </div>
@@ -160,8 +166,9 @@
                                 step="0.0001"
                                 min="50"
                                 max="100"
+                                required
                                 placeholder="100"
-                                value={value('payratio', sakin?.payratio)}
+                                value={value('payratio', sakin?.payratio ?? 100)}
                             >
                         </div>
                         {#if firstError('payratio')}<p class="help has-text-danger">{firstError('payratio')}</p>{/if}
@@ -182,10 +189,25 @@
                                 name="telno"
                                 type="tel"
                                 placeholder="telefon numarası"
+                                required
                                 value={value('telno', sakin?.phone)}
                             >
                         </div>
                         {#if firstError('telno')}<p class="help has-text-danger">{firstError('telno')}</p>{/if}
+                    </div>
+                    <div class="column field">
+                        <label class="label" for="email">E-Posta</label>
+                        <div class="control">
+                            <input
+                                class="input"
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder="E-posta adresi"
+                                value={value('email', sakin?.email)}
+                            >
+                        </div>
+                        {#if firstError('email')}<p class="help has-text-danger">{firstError('email')}</p>{/if}
                     </div>
                     <div class="column field">
                         <label class="label" for="move-in-date">Giriş Tarihi</label>
@@ -195,7 +217,8 @@
                                 id="move-in-date"
                                 type="date"
                                 name="giristarihi"
-                                value={value('giristarihi', sakin?.giris_tarihi)}
+                                required
+                                value={value('giristarihi', sakin?.giris_tarihi ?? today)}
                             >
                         </div>
                         {#if firstError('giristarihi')}<p class="help has-text-danger">{firstError('giristarihi')}</p>{/if}
@@ -213,12 +236,12 @@
                     <legend class="label">Durum</legend>
                     <div class="control">
                         <label class="radio">
-                            <input type="radio" name="status" value="1" checked={isSelected('status', '1', sakin?.is_active)}>
+                            <input type="radio" name="status" value="1" required checked={isSelected('status', '1', sakin?.is_active)}>
                             {durum['1']}
                         </label>
                         <br>
                         <label class="radio">
-                            <input type="radio" name="status" value="0" checked={isSelected('status', '0', sakin?.is_active)}>
+                            <input type="radio" name="status" value="0" required checked={isSelected('status', '0', sakin?.is_active)}>
                             {durum['0']}
                         </label>
                     </div>

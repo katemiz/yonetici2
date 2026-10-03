@@ -1,5 +1,6 @@
 <script>
-    import { File, Plus, Receipt, Search, X, Paperclip } from '@lucide/svelte';
+    import { untrack } from 'svelte';
+    import { File, Plus, Receipt, Paperclip } from '@lucide/svelte';
     import { page, router } from '@inertiajs/svelte';
     import Paginate from './components/Paginate.svelte';
     import Title from './components/Title.svelte';
@@ -10,7 +11,7 @@
 
     let { bina, records, search = '' } = $props();
     let isResident = $derived(page?.props?.userType === 'resident');
-    //let query = $state('');
+    let query = $state(untrack(() => search));
     let selectedRecord = $state(null);
     let listUrl = $derived(isResident ? '/resident-status/gelirler' : '/durum/gelirler');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
@@ -22,27 +23,23 @@
 
 
 
-    let clearSearchIcon = $state(false);
-
+    let skipInitialSearch = true;
     $effect(() => {
-        if (search) {
-            clearSearchIcon = true;
-
-            if (search && search.length > 2) {
-                doSearch();
-            }
-        } else {
-            clearSearchIcon = false;
-            doSearch();
+        const currentQuery = query;
+        if (skipInitialSearch) {
+            skipInitialSearch = false;
+            return;
         }
 
+        const timeout = window.setTimeout(() => doSearch(currentQuery), 300);
+        return () => window.clearTimeout(timeout);
     });
 
-    function doSearch() {
+    function doSearch(query) {
         router.get(
             "/durum/gelirler",
             {
-                search: search,
+                search: query,
             },
             {
                 preserveState: true,
@@ -88,7 +85,7 @@
                 </div>
                 <div class="level-right">
 
-                        <SearchBox bind:query={search} placeholder="Ara..." />
+                        <SearchBox bind:query={query} placeholder="Ara..." />
 
 
 
@@ -154,7 +151,7 @@
                     </table>
                 </div>
 
-                <Paginate items={records} />
+                <Paginate items={records} query={query} />
             {:else}
                 <div class="notification is-warning is-light">Gelir kaydı yoktur</div>
             {/if}

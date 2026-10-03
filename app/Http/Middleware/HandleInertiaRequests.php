@@ -36,6 +36,9 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'selected_bina' => $request->session()->get('selected_bina'),
+            'selected_bina_id' => $request->session()->get('resident_id')
+                ? $request->session()->get('resident_bina_id')
+                : $request->session()->get('bina_id'),
             'app' => [
                 'company' => config('constants.company'),
                 'title' => config('constants.app.title'),

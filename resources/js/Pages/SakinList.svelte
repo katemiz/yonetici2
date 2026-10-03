@@ -1,14 +1,36 @@
 <script>
     import { untrack } from 'svelte';
-    import { ArrowDown, ArrowLeft, ArrowUp, Pencil, Plus, Search, X } from '@lucide/svelte';
+    import { router } from '@inertiajs/svelte';
+    import { ArrowDown, ArrowLeft, ArrowUp, Pencil, Plus } from '@lucide/svelte';
     import Layout from './Shared/Layout.svelte';
+    import SearchBox from './components/SearchBox.svelte';
 
-    let { bina, sakinler, search = '', sort = 'created_at', direction = 'desc' } = $props();
+    let { bina, sakinler, search = '', sort = 'created_at', direction = 'desc', status = '1' } = $props();
     let query = $state(untrack(() => search));
+    let skipInitialSearch = true;
+
+    function doSearch() {
+        router.get(
+            `/sakin-list/${bina.id}`,
+            { search: query, sort, direction, status },
+            { preserveState: true, replace: true, preserveScroll: true },
+        );
+    }
+
+    $effect(() => {
+        const currentQuery = query;
+        if (skipInitialSearch) {
+            skipInitialSearch = false;
+            return;
+        }
+
+        if (!currentQuery || currentQuery.length > 2) doSearch();
+    });
 
     function sortUrl(field) {
         const params = new URLSearchParams();
         if (query) params.set('search', query);
+        params.set('status', status);
         params.set('sort', field);
         params.set('direction', sort === field && direction === 'asc' ? 'desc' : 'asc');
         return `/sakin-list/${bina.id}?${params.toString()}`;
@@ -38,32 +60,34 @@
                     <span>Bina Sakini Ekle</span>
                 </a>
             </div>
-            {#if sakinler.total > 0}
-                <div class="level-right">
-                    <form method="GET" action={`/sakin-list/${bina.id}`} class="field has-addons">
-                        <div class="control has-icons-left">
-                            <input class="input" type="search" name="search" placeholder="Ara..." bind:value={query} aria-label="Sakinlerde ara">
-                            <span class="icon is-small is-left"><Search size={16} /></span>
-                        </div>
-                        <input type="hidden" name="sort" value={sort}>
-                        <input type="hidden" name="direction" value={direction}>
-                        <div class="control"><button class="button" type="submit">Ara</button></div>
-                        {#if search}
-                            <div class="control">
-                                <a class="button px-1" href={`/sakin-list/${bina.id}`} aria-label="Aramayı temizle">
-                                    <X size={18} />
-                                </a>
-                            </div>
-                        {/if}
-                    </form>
+            <div class="level-right">
+                <form method="GET" action={`/sakin-list/${bina.id}`} class="field is-grouped mr-5" aria-label="Sakin durumunu filtrele">
+                    {#if query}<input type="hidden" name="search" value={query}>{/if}
+                    <input type="hidden" name="sort" value={sort}>
+                    <input type="hidden" name="direction" value={direction}>
+                    <div class="control">
+                        <label class="radio">
+                            <input type="radio" name="status" value="1" checked={status === '1'} onchange={(event) => event.currentTarget.form.requestSubmit()}>
+                            Güncel
+                        </label>
+                    </div>
+                    <div class="control">
+                        <label class="radio">
+                            <input type="radio" name="status" value="0" checked={status === '0'} onchange={(event) => event.currentTarget.form.requestSubmit()}>
+                            Eski
+                        </label>
+                    </div>
+                </form>
+                <div class="field">
+                    <SearchBox bind:query={query} placeholder="Ara..." ariaLabel="Sakinlerde ara" />
                 </div>
-            {/if}
+            </div>
         </nav>
 
         {#if sakinler.total > 0}
             <div class="table-container">
                 <table class="table is-fullwidth">
-                    <caption>Bu yerleşkede <b>{sakinler.total}</b> sakin oturmaktadır</caption>
+                    <caption>Bu yerleşkede <b>{sakinler.total}</b> {status === '1' ? 'güncel' : 'eski'} sakin bulunmaktadır</caption>
                     <thead>
                         <tr>
                             <th>
@@ -114,7 +138,11 @@
             {/if}
         {:else}
             <div class="notification is-warning is-light">
-                {search ? 'Aramanızla eşleşen sakin bulunamadı.' : 'Bu bina/yerleşke için oturan tanımı yapılmamıştır.'}
+                {search
+                    ? 'Aramanızla eşleşen sakin bulunamadı.'
+                    : status === '1'
+                        ? 'Bu bina/yerleşke için oturan tanımı yapılmamıştır.'
+                        : 'Bu bina/yerleşke için eski sakin kaydı bulunmamaktadır.'}
             </div>
         {/if}
     </main>

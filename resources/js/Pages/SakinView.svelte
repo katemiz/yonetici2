@@ -43,6 +43,10 @@
                                         <td>{sakin.phone}</td>
                                     </tr>
                                     <tr>
+                                        <td class="has-text-grey has-text-right">E-Posta</td>
+                                        <td>{sakin.email}</td>
+                                    </tr>
+                                    <tr>
                                         <td class="has-text-grey has-text-right">Giriş Tarihi</td>
                                         <td>{sakin.giris_tarihi}</td>
                                     </tr>
@@ -74,7 +78,7 @@
 
         <nav class="level">
             <div class="level-left">{sakin.created_at}</div>
-            <div class="level-right">{sakin.created_human}</div>
+            <div class="level-right">{sakin.updated_human}</div>
         </nav>
     </main>
 </Layout>

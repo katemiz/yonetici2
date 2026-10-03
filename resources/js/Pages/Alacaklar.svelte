@@ -1,20 +1,38 @@
 <script>
-    import { File, Plus, TagPlus, ReceiptText, BookDown, Search, X } from '@lucide/svelte';
-    import { page } from '@inertiajs/svelte';
+    import { untrack } from 'svelte';
+    import { File, Plus, TagPlus, ReceiptText, BookDown } from '@lucide/svelte';
+    import { page, router } from '@inertiajs/svelte';
     import Paginate from './components/Paginate.svelte';
+    import SearchBox from './components/SearchBox.svelte';
     import Layout from './Shared/Layout.svelte';
 
     let { bina, records, search = '' } = $props();
     let isResident = $derived(page?.props?.userType === 'resident');
-    let query = $state('');
+    let query = $state(untrack(() => search));
     let selectedRecord = $state(null);
     let listUrl = $derived(isResident ? '/resident-status/alacaklar' : '/durum/alacaklar');
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    let skipInitialSearch = true;
 
     $effect(() => {
-        query = search;
+        const currentQuery = query;
+        if (skipInitialSearch) {
+            skipInitialSearch = false;
+            return;
+        }
+
+        const timeout = window.setTimeout(() => doSearch(currentQuery), 300);
+        return () => window.clearTimeout(timeout);
     });
+
+    function doSearch(query) {
+        router.get(
+            listUrl,
+            { search: query },
+            { preserveState: true, replace: true, preserveScroll: true },
+        );
+    }
 
     function confirmReceived(id) {
         if (confirm('Bu alacak gelir kaydına dönüştürülecektir. Onaylıyor musunuz?')) {
@@ -48,20 +66,9 @@
                     {/if}
                 </div>
                 <div class="level-right">
-                    <form method="GET" action={listUrl} class="field has-addons">
-                        <div class="control has-icons-left">
-                            <input class="input" name="search" bind:value={query} placeholder="Ara" aria-label="Alacaklarda ara">
-                            <Search size={16} class="icon is-left" />
-                        </div>
-                        <div class="control">
-                            <button class="button" type="submit">Ara</button>
-                        </div>
-                        {#if search}
-                            <div class="control">
-                                <a class="button" href={listUrl} aria-label="Aramayı temizle"><X size={18} /></a>
-                            </div>
-                        {/if}
-                    </form>
+                    <div class="field">
+                        <SearchBox bind:query={query} placeholder="Ara..." ariaLabel="Alacaklarda ara" />
+                    </div>
                 </div>
             </div>
 
@@ -96,7 +103,7 @@
                                                 <TagPlus size={22} />
                                             </button>
                                             {#each record.files as file}
-                                                <a href={`/kayit-dosya-gor/${file.id}`} class="ml-2" title={file.name}>
+                                                <a href={file.url ?? `/kayit-dosya-gor/${file.id}`} class="ml-2" title={file.name}>
                                                     <File size={22} />
                                                 </a>
                                             {/each}
@@ -126,7 +133,7 @@
                     </table>
                 </div>
 
-                <Paginate items={records} />
+                <Paginate items={records} query={query} />
             {:else}
                 <div class="notification is-warning is-light">Alacak Kaydı Yoktur</div>
             {/if}
