@@ -56,7 +56,7 @@ class DurumController extends Controller
 
         $search = trim((string) $request->query('search', ''));
         $query = Kayit::query()
-            ->with(['sakin', 'dosyalar'])
+            ->with(['sakin', 'dosyalar', 'media'])
             ->where('kayitlar.bina_id', $bina->id)
             ->where('kayitlar.tur', 'alacak')
             ->leftJoin('sakinler', 'kayitlar.sakin_id', '=', 'sakinler.id')
@@ -84,7 +84,11 @@ class DurumController extends Controller
                 'files' => $kayit->dosyalar->map(fn ($file) => [
                     'id' => $file->id,
                     'name' => $file->filename,
-                ])->values(),
+                ])->concat($kayit->getMedia('alacak-attachments')->map(fn ($media) => [
+                    'id' => $media->id,
+                    'name' => $media->file_name,
+                    'url' => "/kayit-media-gor/{$kayit->id}/{$media->id}",
+                ]))->values(),
             ]);
 
         return Inertia::render('Alacaklar', [
@@ -122,7 +126,7 @@ class DurumController extends Controller
 
         $search = trim((string) $request->query('search', ''));
         $query = Kayit::query()
-            ->with(['sakin', 'dosyalar'])
+            ->with(['sakin', 'dosyalar', 'media'])
             ->where('kayitlar.bina_id', $bina->id)
             ->where('kayitlar.tur', 'gelir')
             ->leftJoin('sakinler', 'kayitlar.sakin_id', '=', 'sakinler.id')
@@ -149,7 +153,11 @@ class DurumController extends Controller
                 'files' => $kayit->dosyalar->map(fn ($file) => [
                     'id' => $file->id,
                     'name' => $file->filename,
-                ])->values(),
+                ])->concat($kayit->getMedia('income-attachments')->map(fn ($media) => [
+                    'id' => $media->id,
+                    'name' => $media->file_name,
+                    'url' => "/kayit-media-gor/{$kayit->id}/{$media->id}",
+                ]))->values(),
             ]);
 
         return Inertia::render('Gelirler', [
@@ -173,7 +181,7 @@ class DurumController extends Controller
 
         $search = trim((string) $request->query('search', ''));
         $query = Kayit::query()
-            ->with('dosyalar')
+            ->with(['dosyalar', 'media'])
             ->where('bina_id', $bina->id)
             ->where('tur', 'gider')
             ->orderByDesc('created_at');
@@ -196,7 +204,11 @@ class DurumController extends Controller
                 'files' => $kayit->dosyalar->map(fn ($file) => [
                     'id' => $file->id,
                     'name' => $file->filename,
-                ])->values(),
+                ])->concat($kayit->getMedia('expense-attachments')->map(fn ($media) => [
+                    'id' => $media->id,
+                    'name' => $media->file_name,
+                    'url' => "/kayit-media-gor/{$kayit->id}/{$media->id}",
+                ]))->values(),
             ]);
 
         return Inertia::render('Giderler', [
@@ -219,7 +231,7 @@ class DurumController extends Controller
 
         $search = trim((string) $request->query('search', ''));
         $query = Kayit::query()
-            ->with('dosyalar')
+            ->with(['dosyalar', 'media'])
             ->where('bina_id', $bina->id)
             ->where('tur', 'verecek')
             ->orderBy('created_at');
@@ -242,7 +254,11 @@ class DurumController extends Controller
                 'files' => $kayit->dosyalar->map(fn ($file) => [
                     'id' => $file->id,
                     'name' => $file->filename,
-                ])->values(),
+                ])->concat($kayit->getMedia('payable-attachments')->map(fn ($media) => [
+                    'id' => $media->id,
+                    'name' => $media->file_name,
+                    'url' => "/kayit-media-gor/{$kayit->id}/{$media->id}",
+                ]))->values(),
             ]);
 
         return Inertia::render('Verecekler', [

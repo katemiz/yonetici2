@@ -85,6 +85,9 @@ class KayitController extends Controller
                     'son_odeme' => $this->kayit->son_odeme,
                     'spending_category' => $this->kayit->spending_category,
                     'remarks' => $this->kayit->remarks,
+                    'files' => in_array($request->tur, ['gider', 'fatura'], true)
+                        ? $this->recordFiles($this->kayit)
+                        : [],
                 ] : null,
             ]);
         }
@@ -108,6 +111,7 @@ class KayitController extends Controller
                     'tutar' => $this->kayit->tutar,
                     'son_odeme' => $this->kayit->son_odeme,
                     'remarks' => $this->kayit->remarks,
+                    'files' => $this->recordFiles($this->kayit),
                 ] : null,
                 'oldInput' => [
                     'borclu' => old('borclu'),
@@ -146,6 +150,7 @@ class KayitController extends Controller
                     'aciklama' => $this->kayit->aciklama,
                     'tutar' => $this->kayit->tutar,
                     'remarks' => $this->kayit->remarks,
+                    'files' => $this->recordFiles($this->kayit),
                 ] : null,
             ]);
         }
@@ -245,6 +250,8 @@ class KayitController extends Controller
                 'aciklama' => ['required', 'string', 'min:10'],
                 'tutar' => ['required', 'numeric'],
                 'sonodeme' => ['nullable', 'date'],
+                'dosyalar' => ['sometimes', 'array'],
+                'dosyalar.*' => ['file', 'max:10240'],
             ]);
 
             $props['sakin_id'] = $req->input('borclu');
@@ -255,12 +262,17 @@ class KayitController extends Controller
             $props['son_odeme'] = $req->input('sonodeme');
 
             $kayit = Kayit::create($props);
-            $this->addFiles($req, $kayit->id);
+            $this->storeRecordMedia($req, $kayit);
 
             return redirect()->route('durum.receivables');
         }
 
         if ($tur == 'fatura') {
+            $req->validate([
+                'dosyalar' => ['sometimes', 'array'],
+                'dosyalar.*' => ['file', 'max:10240'],
+            ]);
+
             $props['tur'] = 'verecek';
             $props['spending_category'] = $req->input('spending_category');
             $props['aciklama'] = $req->input('aciklama');
@@ -269,12 +281,17 @@ class KayitController extends Controller
             $props['son_odeme'] = $req->input('sonodeme');
 
             $kayit = Kayit::create($props);
-            $this->addFiles($req, $kayit->id);
+            $this->storeRecordMedia($req, $kayit);
 
             return redirect()->route('durum.payables');
         }
 
         if ($tur == 'gider') {
+            $req->validate([
+                'dosyalar' => ['sometimes', 'array'],
+                'dosyalar.*' => ['file', 'max:10240'],
+            ]);
+
             $props['tur'] = 'gider';
             $props['spending_category'] = $req->input('spending_category');
             $props['aciklama'] = $req->input('aciklama');
@@ -283,12 +300,17 @@ class KayitController extends Controller
             $props['son_odeme'] = date('Y-m-d', time());
 
             $kayit = Kayit::create($props);
-            $this->addFiles($req, $kayit->id);
+            $this->storeRecordMedia($req, $kayit);
 
             return redirect()->route('durum.expenses');
         }
 
         if ($tur == 'gelir') {
+            $req->validate([
+                'dosyalar' => ['sometimes', 'array'],
+                'dosyalar.*' => ['file', 'max:10240'],
+            ]);
+
             $props['tur'] = 'gelir';
             $props['aciklama'] = $req->input('aciklama');
             $props['donem'] = '';
@@ -296,7 +318,7 @@ class KayitController extends Controller
             $props['son_odeme'] = date('Y-m-d', time());
 
             $kayit = Kayit::create($props);
-            $this->addFiles($req, $kayit->id);
+            $this->storeRecordMedia($req, $kayit);
 
             return redirect()->route('durum.incomes');
         }
@@ -343,6 +365,8 @@ class KayitController extends Controller
                 'aciklama' => ['required', 'string', 'min:10'],
                 'tutar' => ['required', 'numeric'],
                 'sonodeme' => ['nullable', 'date'],
+                'dosyalar' => ['sometimes', 'array'],
+                'dosyalar.*' => ['file', 'max:10240'],
             ]);
 
             $kayit->sakin_id = $request->input('borclu');
@@ -350,12 +374,29 @@ class KayitController extends Controller
         } elseif ($tur === 'fatura') {
             $kayit->spending_category = $request->input('spending_category');
             $kayit->son_odeme = $request->input('sonodeme');
+            $request->validate([
+                'dosyalar' => ['sometimes', 'array'],
+                'dosyalar.*' => ['file', 'max:10240'],
+            ]);
         } elseif ($tur === 'gider') {
             $kayit->spending_category = $request->input('spending_category');
+            $request->validate([
+                'dosyalar' => ['sometimes', 'array'],
+                'dosyalar.*' => ['file', 'max:10240'],
+            ]);
+        } elseif ($tur === 'gelir') {
+            $request->validate([
+                'dosyalar' => ['sometimes', 'array'],
+                'dosyalar.*' => ['file', 'max:10240'],
+            ]);
         }
 
         $kayit->save();
-        $this->addFiles($request, $kayit->id);
+        if (in_array($tur, ['alacak', 'gelir', 'gider', 'fatura'], true)) {
+            $this->storeRecordMedia($request, $kayit);
+        } else {
+            $this->addFiles($request, $kayit->id);
+        }
 
         $statusRoute = match ($tur) {
             'gelir' => 'durum.incomes',
@@ -466,6 +507,65 @@ class KayitController extends Controller
         }
     }
 
+    private function storeRecordMedia(Request $request, Kayit $kayit): void
+    {
+        $collection = match ($kayit->tur) {
+            'alacak' => 'alacak-attachments',
+            'gelir' => 'income-attachments',
+            'gider' => 'expense-attachments',
+            'verecek' => 'payable-attachments',
+            default => abort(404),
+        };
+
+        foreach ($request->file('dosyalar', []) as $file) {
+            $kayit->addMedia($file)->toMediaCollection($collection);
+        }
+    }
+
+    private function recordFiles(Kayit $kayit): array
+    {
+        $kayit->loadMissing(['dosyalar', 'media']);
+        $collection = match ($kayit->tur) {
+            'alacak' => 'alacak-attachments',
+            'gelir' => 'income-attachments',
+            'gider' => 'expense-attachments',
+            'verecek' => 'payable-attachments',
+            default => abort(404),
+        };
+
+        $legacyFiles = $kayit->dosyalar->map(function (Dosya $file) use ($kayit) {
+            $path = Storage::disk('local')->path($file->stored_as);
+            $exists = is_file($path);
+
+            return [
+                'id' => $file->id,
+                'name' => $file->filename,
+                'url' => "/kayit-dosya-gor/{$file->id}",
+                'deleteUrl' => "/kayit-dosya-delete/{$kayit->id}/{$file->id}",
+                'mime' => $exists ? mime_content_type($path) : '',
+                'size' => $exists ? $this->formatFileSize(filesize($path)) : '',
+            ];
+        });
+
+        $mediaFiles = $collection ? $kayit->getMedia($collection)->map(fn ($media) => [
+            'id' => $media->id,
+            'name' => $media->file_name,
+            'url' => "/kayit-media-gor/{$kayit->id}/{$media->id}",
+            'deleteUrl' => "/media-delete/{$media->id}",
+            'mime' => $media->mime_type,
+            'size' => $this->formatFileSize($media->size),
+        ]) : collect();
+
+        return $legacyFiles->concat($mediaFiles)->values()->all();
+    }
+
+    private function formatFileSize(int $bytes): string
+    {
+        return $bytes < 1024
+            ? "{$bytes} B"
+            : number_format($bytes / 1024, 2) . ' KB';
+    }
+
     public function dosyaEkle(Request $request)
     {
         $this->addFiles($request, request('id'));
@@ -499,7 +599,7 @@ class KayitController extends Controller
     public function kayitGor(int $id)
     {
         $kayit = Kayit::query()
-            ->with(['sakin', 'dosyalar'])
+            ->with(['sakin', 'dosyalar', 'media'])
             ->where('bina_id', $this->bina->id)
             ->findOrFail($id);
 
@@ -529,10 +629,7 @@ class KayitController extends Controller
                     'name' => trim($kayit->sakin->name . ' ' . $kayit->sakin->lastname),
                     'door_no' => $kayit->sakin->door_no,
                 ] : null,
-                'files' => $kayit->dosyalar->map(fn (Dosya $file) => [
-                    'id' => $file->id,
-                    'name' => $file->filename,
-                ])->values(),
+                'files' => $this->recordFiles($kayit),
                 'edit_url' => $editType ? "/kayit-form/{$editType}/{$kayit->id}" : null,
             ],
         ]);

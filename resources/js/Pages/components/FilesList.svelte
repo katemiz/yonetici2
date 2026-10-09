@@ -18,9 +18,11 @@
 
     let { media = [] } = $props();
 
-    function deleteFile(mediaId) {
-        if (confirm("Are you sure you want to delete this file:" + mediaId)) {
-            router.delete(`/media-delete/${mediaId}`, {
+    function deleteFile(file) {
+        if (
+            confirm(`Are you sure you want to delete this file: ${file.name}`)
+        ) {
+            router.delete(file.deleteUrl ?? `/media-delete/${file.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     // Laravel/Inertia will reload the props automatically
@@ -55,6 +57,7 @@
                         <button
                             type="button"
                             class="is-small has-text-link"
+                            aria-label={`Download ${file.name}`}
                             onclick={() => downloadFile(file.url, file.name)}
                         >
                             <span>{file.name}</span>
@@ -66,7 +69,8 @@
                         <button
                             type="button"
                             class="is-small is-danger is-clickable"
-                            onclick={() => deleteFile(file.id)}
+                            aria-label={`Delete ${file.name}`}
+                            onclick={() => deleteFile(file)}
                         >
                             <span class="icon is-small">
                                 <CircleX size="16" color="red" />

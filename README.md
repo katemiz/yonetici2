@@ -21,6 +21,24 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Private File Storage
+
+Before enabling alacak file uploads in an installation, run the setup script as
+the operating-system superuser:
+
+```sh
+sudo bash scripts/setup-private-media.sh
+```
+
+The script prompts for an absolute directory outside this project and the PHP
+runtime user (for example, `katemiz` for this development server or `www-data`
+for a service running under that account). It creates the folder with private permissions, writes its path
+to `.env` as `MEDIA_UPLOADS_PATH`, and clears Laravel's cached configuration.
+If uploads exist in the default sibling `private-media` folder, it copies them
+without overwriting existing destination files and keeps the originals in place.
+Files remain private and are served through authorized application routes; no
+public storage symlink is created.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

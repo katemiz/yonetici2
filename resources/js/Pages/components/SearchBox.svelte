@@ -1,10 +1,11 @@
 <script lang="ts">
-    import { Search, X } from '@lucide/svelte';
+    import { Search, X } from "@lucide/svelte";
 
     // $bindable() allows the parent to use bind:query and lets this component update it (e.g., on clear)
-    let { 
-        query = $bindable(""), 
-        placeholder = "Ara..." 
+    let {
+        query = $bindable(""),
+        placeholder = "Ara...",
+        ariaLabel = "Binalarda ara",
     } = $props();
 
     // Reactively determine if the clear button should be shown
@@ -20,10 +21,10 @@
         bind:value={query}
         class="input"
         type="text"
-        placeholder={placeholder}
-        aria-label="Binalarda ara"
+        {placeholder}
+        aria-label={ariaLabel}
     />
-    
+
     {#if clearSearchIcon}
         <button
             type="button"

@@ -122,6 +122,9 @@ Route::middleware(['auth', 'active.manager'])->group(function () {
     ]);
 
     Route::get('/kayit-dosya-gor/{id}', [DosyaController::class, 'dosya']);
+    Route::delete('/kayit-dosya-delete/{kayitId}/{dosyaId}', [DosyaController::class, 'deleteLegacyRecordFile']);
+    Route::get('/kayit-media-gor/{kayitId}/{mediaId}', [DosyaController::class, 'media']);
+    Route::delete('/media-delete/{mediaId}', [DosyaController::class, 'deleteMedia']);
     Route::get('/select-active/{id}', [BinaController::class, 'selectActive']);
     Route::get('/durum/ozet', [DurumController::class, 'summary'])->name('durum.summary');
     Route::get('/durum/alacaklar', [DurumController::class, 'receivables'])->name('durum.receivables');

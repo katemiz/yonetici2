@@ -24,11 +24,13 @@ class SakinController extends Controller
             ->findOrFail($id);
         $sort = $request->query('sort', 'created_at');
         $direction = $request->query('direction', 'desc');
+        $status = $request->query('status', '1');
         abort_unless(in_array($sort, ['name', 'created_at'], true), 422);
         abort_unless(in_array($direction, ['asc', 'desc'], true), 422);
+        abort_unless(in_array($status, ['1', '0'], true), 422);
 
         $sakinler = $bina->sakinler()
-            ->where('is_active', 1)
+            ->where('is_active', $status)
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->string('search')->trim()->toString();
                 $query->where(function ($query) use ($search) {
@@ -54,6 +56,7 @@ class SakinController extends Controller
             'search' => $request->query('search', ''),
             'sort' => $sort,
             'direction' => $direction,
+            'status' => $status,
         ]);
     }
 
@@ -81,6 +84,7 @@ class SakinController extends Controller
                 'is_evsahibi' => $sakin->is_evsahibi,
                 'payratio' => $sakin->payratio,
                 'phone' => $sakin->phone,
+                'email' => $sakin->email,
                 'giris_tarihi' => $sakin->giris_tarihi,
                 'remarks' => $sakin->remarks,
                 'is_active' => $sakin->is_active,
@@ -93,6 +97,7 @@ class SakinController extends Controller
                 'sahiplik' => old('sahiplik'),
                 'payratio' => old('payratio'),
                 'telno' => old('telno'),
+                'email' => old('email'),
                 'giristarihi' => old('giristarihi'),
                 'editor_data' => old('editor_data'),
                 'status' => old('status'),
@@ -103,6 +108,8 @@ class SakinController extends Controller
     public function addSakin(Request $req)
     {
         $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
+        $this->validateSakin($req);
+
         $props['user_id'] = $bina->user_id;
         $props['bina_id'] = $bina->id;
         $props['name'] = $req->input('isim');
@@ -111,6 +118,7 @@ class SakinController extends Controller
         $props['is_evsahibi'] = $req->input('sahiplik');
         $props['payratio'] = $req->input('payratio');
         $props['phone'] = $req->input('telno');
+        $props['email'] = $req->input('email');
         $props['giris_tarihi'] = $req->input('giristarihi');
         $props['remarks'] = $req->input('editor_data');
 
@@ -128,6 +136,8 @@ class SakinController extends Controller
     public function updateSakin(Request $req)
     {
         $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
+        $this->validateSakin($req);
+
         $props['user_id'] = $bina->user_id;
         $props['bina_id'] = $bina->id;
         $props['name'] = $req->input('isim');
@@ -136,6 +146,7 @@ class SakinController extends Controller
         $props['is_evsahibi'] = $req->input('sahiplik');
         $props['payratio'] = $req->input('payratio');
         $props['phone'] = $req->input('telno');
+        $props['email'] = $req->input('email');
         $props['giris_tarihi'] = $req->input('giristarihi');
         $props['remarks'] = $req->input('editor_data');
 
@@ -146,6 +157,22 @@ class SakinController extends Controller
         return redirect()->route('sakinview', [
             'id' => $req->id,
             'sakinid' => $req->sakinid,
+        ]);
+    }
+
+    private function validateSakin(Request $request): void
+    {
+        $request->validate([
+            'isim' => ['required', 'string', 'max:255'],
+            'soyisim' => ['required', 'string', 'max:255'],
+            'door_no' => ['required', 'string', 'max:255'],
+            'sahiplik' => ['required', 'in:0,1'],
+            'payratio' => ['required', 'numeric', 'min:50', 'max:100'],
+            'telno' => ['required', 'string', 'max:16'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'giristarihi' => ['required', 'date'],
+            'editor_data' => ['nullable', 'string'],
+            'status' => ['required', 'in:0,1'],
         ]);
     }
 
@@ -166,12 +193,15 @@ class SakinController extends Controller
                 'door_no' => $sakin->door_no,
                 'is_evsahibi' => (bool) $sakin->is_evsahibi,
                 'phone' => $sakin->phone,
+                'email' => $sakin->email,
                 'giris_tarihi' => $sakin->giris_tarihi,
                 'payratio' => $sakin->payratio,
                 'remarks' => $sakin->remarks,
                 'is_active' => (bool) $sakin->is_active,
                 'created_at' => $sakin->created_at?->format('Y-m-d H:i:s'),
                 'created_human' => $sakin->carbon_created_at,
+                'updated_at' => $sakin->updated_at?->format('Y-m-d H:i:s'),
+                'updated_human' => $sakin->carbon_updated_at,
             ],
             'durum' => $this->durum,
         ]);
