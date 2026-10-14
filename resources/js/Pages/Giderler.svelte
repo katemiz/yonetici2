@@ -111,6 +111,7 @@
                                         >{record.amount} {bina.pbirimi}</td
                                     >
                                     {#if !isResident}
+
                                         <td>
                                             {#each record.files as file}
                                                 <a

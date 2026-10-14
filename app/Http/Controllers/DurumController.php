@@ -116,6 +116,8 @@ class DurumController extends Controller
         return redirect()->route('durum.receivables');
     }
 
+
+
     public function incomes(Request $request): Response|RedirectResponse
     {
         $bina = $this->activeBina();

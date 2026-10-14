@@ -1,6 +1,6 @@
 <script>
     import { untrack } from "svelte";
-    import { File, Plus, Paperclip, Wallet } from "@lucide/svelte";
+    import { File, Plus, Wallet } from "@lucide/svelte";
     import { router } from "@inertiajs/svelte";
     import Paginate from "./components/Paginate.svelte";
     import SearchBox from "./components/SearchBox.svelte";
@@ -88,7 +88,8 @@
                                 <th>No</th>
                                 <th>Açıklama</th>
                                 <th class="has-text-right">Tutar</th>
-                                <th><Paperclip size="18" /></th>
+                                <th>&nbsp;</th>
+                                <th class="has-text-right">Dosya</th>
                                 <th>Son Ödeme</th>
                                 <th class="has-text-right">İşlemler</th>
                             </tr>

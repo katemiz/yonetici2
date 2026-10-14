@@ -9,7 +9,6 @@
     let { bina, records, search = "" } = $props();
     let isResident = $derived(page?.props?.userType === "resident");
     let query = $state(untrack(() => search));
-    let selectedRecord = $state(null);
     let listUrl = $derived(
         isResident ? "/resident-status/alacaklar" : "/durum/alacaklar",
     );
@@ -135,7 +134,7 @@
                                                     class="mr-2"
                                                     title={file.name}
                                                 >
-                                                    <File size={22} />
+                                                    <File size={18} />
                                                 </a>
                                             {/each}
                                         </td>
@@ -150,7 +149,7 @@
                                                     title="Makbuz"
                                                     aria-label="Makbuz"
                                                 >
-                                                    <ReceiptText size={22} />
+                                                    <ReceiptText size={20} />
                                                 </a>
                                             {/if}
                                         {:else}
@@ -159,7 +158,7 @@
                                                 class="button is-ghost p-1"
                                                 title="Makbuz"
                                             >
-                                                <ReceiptText size={22} />
+                                                <ReceiptText size={20} />
                                             </a>
                                             <button
                                                 class="button is-ghost p-1"
@@ -186,47 +185,4 @@
             {/if}
         </div>
     </main>
-
-    {#if selectedRecord}
-        <div class="modal is-active">
-            <div class="modal-background"></div>
-            <div class="modal-card">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">Kayıtlara Dosya Ekleme</p>
-                    <button
-                        class="delete"
-                        aria-label="close"
-                        onclick={() => (selectedRecord = null)}
-                    ></button>
-                </header>
-                <form
-                    method="POST"
-                    action={`/kayit-dosya-add/${selectedRecord}/alacaklar`}
-                    enctype="multipart/form-data"
-                >
-                    <input type="hidden" name="_token" value={csrfToken} />
-                    <section class="modal-card-body">
-                        <input
-                            class="file-input"
-                            type="file"
-                            name="dosyalar[]"
-                            multiple
-                            required
-                        />
-                    </section>
-                    <footer class="modal-card-foot">
-                        <button class="button is-success" type="submit"
-                            >Yükle</button
-                        >
-                        <button
-                            class="button"
-                            type="button"
-                            onclick={() => (selectedRecord = null)}
-                            >İptal</button
-                        >
-                    </footer>
-                </form>
-            </div>
-        </div>
-    {/if}
 </Layout>
