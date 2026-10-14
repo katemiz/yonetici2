@@ -1,6 +1,6 @@
 <script>
     import { untrack } from "svelte";
-    import { File, Plus, Wallet } from "@lucide/svelte";
+    import { File, Paperclip, Plus, Wallet } from "@lucide/svelte";
     import { router } from "@inertiajs/svelte";
     import Paginate from "./components/Paginate.svelte";
     import SearchBox from "./components/SearchBox.svelte";
@@ -88,8 +88,8 @@
                                 <th>No</th>
                                 <th>Açıklama</th>
                                 <th class="has-text-right">Tutar</th>
-                                <th>&nbsp;</th>
-                                <th class="has-text-right">Dosya</th>
+                                
+                                <th> <Paperclip size={18} /></th>
                                 <th>Son Ödeme</th>
                                 <th class="has-text-right">İşlemler</th>
                             </tr>
@@ -106,23 +106,13 @@
                                     <td class="has-text-right td-tutar"
                                         >{record.amount} {bina.pbirimi}</td
                                     >
+
                                     <td>
-                                        <button
-                                            class="button is-white p-1"
-                                            type="button"
-                                            aria-label="Dosya ekle"
-                                            onclick={() =>
-                                                (selectedRecord = record.id)}
-                                        >
-                                            <Plus size={18} />
-                                        </button>
-                                    </td>
-                                    <td class="has-text-right">
                                         {#each record.files as file}
                                             <a
                                                 href={file.url ??
                                                     `/kayit-dosya-gor/${file.id}`}
-                                                class="ml-2"
+                                                class="mr-2"
                                                 title={file.name}
                                             >
                                                 <File size={18} />
@@ -142,7 +132,7 @@
                                                 value={csrfToken}
                                             />
                                             <button
-                                                class="button is-white p-1"
+                                                class="button is-ghost p-1"
                                                 type="button"
                                                 title="Ödendi"
                                                 aria-label="Ödendi"

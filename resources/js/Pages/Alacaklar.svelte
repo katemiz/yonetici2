@@ -1,6 +1,6 @@
 <script>
     import { untrack } from "svelte";
-    import { File, Plus, TagPlus, ReceiptText, BookDown } from "@lucide/svelte";
+    import { File, Plus, Paperclip, TagPlus, ReceiptText, BookDown, Wallet } from "@lucide/svelte";
     import { page, router } from "@inertiajs/svelte";
     import Paginate from "./components/Paginate.svelte";
     import SearchBox from "./components/SearchBox.svelte";
@@ -9,7 +9,6 @@
     let { bina, records, search = "" } = $props();
     let isResident = $derived(page?.props?.userType === "resident");
     let query = $state(untrack(() => search));
-    let selectedRecord = $state(null);
     let listUrl = $derived(
         isResident ? "/resident-status/alacaklar" : "/durum/alacaklar",
     );
@@ -38,6 +37,7 @@
     }
 
     function confirmReceived(id) {
+
         if (
             confirm(
                 "Bu alacak gelir kaydına dönüştürülecektir. Onaylıyor musunuz?",
@@ -100,7 +100,7 @@
                                 <th>Borçlu</th>
                                 <th>Açıklama</th>
                                 <th class="has-text-right">Tutar</th>
-                                {#if !isResident}<th>Dosya</th>{/if}
+                                {#if !isResident}<th><Paperclip size={18} /></th>{/if}
                                 <th>Eklenme Zamanı</th>
                                 <th class="has-text-right">İşlemler</th>
                             </tr>
@@ -126,24 +126,15 @@
                                     >
                                     {#if !isResident}
                                         <td>
-                                            <button
-                                                class="button is-white p-1"
-                                                type="button"
-                                                aria-label="Dosya ekle"
-                                                onclick={() =>
-                                                    (selectedRecord =
-                                                        record.id)}
-                                            >
-                                                <TagPlus size={22} />
-                                            </button>
+
                                             {#each record.files as file}
                                                 <a
                                                     href={file.url ??
                                                         `/kayit-dosya-gor/${file.id}`}
-                                                    class="ml-2"
+                                                    class="mr-2"
                                                     title={file.name}
                                                 >
-                                                    <File size={22} />
+                                                    <File size={18} />
                                                 </a>
                                             {/each}
                                         </td>
@@ -158,26 +149,39 @@
                                                     title="Makbuz"
                                                     aria-label="Makbuz"
                                                 >
-                                                    <ReceiptText size={22} />
+                                                    <ReceiptText size={20} />
                                                 </a>
                                             {/if}
                                         {:else}
                                             <a
                                                 href={`/makbuzpdf/${record.id}`}
-                                                class="icon"
+                                                class="button is-ghost p-0"
                                                 title="Makbuz"
                                             >
-                                                <ReceiptText size={22} />
+                                                <ReceiptText size={20} />
                                             </a>
-                                            <button
-                                                class="button is-white p-1"
-                                                type="button"
-                                                title="Alındı"
-                                                onclick={() =>
-                                                    confirmReceived(record.id)}
+
+                                            <form
+                                                id={`received-${record.id}`}
+                                                method="POST"
+                                                action={`/durum/alacaklar/${record.id}/received`}
                                             >
-                                                <BookDown size={22} />
-                                            </button>
+                                                <input
+                                                    type="hidden"
+                                                    name="_token"
+                                                    value={csrfToken}
+                                                />
+                                                <button
+                                                    class="button is-ghost p-0"
+                                                    type="button"
+                                                    title="Alındı"
+                                                    onclick={() =>
+                                                        confirmReceived(record.id)}
+                                                >
+                                                    <Wallet size={20} />
+                                                </button>
+
+                                            </form>
                                         {/if}
                                     </td>
                                 </tr>
@@ -195,46 +199,5 @@
         </div>
     </main>
 
-    {#if selectedRecord}
-        <div class="modal is-active">
-            <div class="modal-background"></div>
-            <div class="modal-card">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">Kayıtlara Dosya Ekleme</p>
-                    <button
-                        class="delete"
-                        aria-label="close"
-                        onclick={() => (selectedRecord = null)}
-                    ></button>
-                </header>
-                <form
-                    method="POST"
-                    action={`/kayit-dosya-add/${selectedRecord}/alacaklar`}
-                    enctype="multipart/form-data"
-                >
-                    <input type="hidden" name="_token" value={csrfToken} />
-                    <section class="modal-card-body">
-                        <input
-                            class="file-input"
-                            type="file"
-                            name="dosyalar[]"
-                            multiple
-                            required
-                        />
-                    </section>
-                    <footer class="modal-card-foot">
-                        <button class="button is-success" type="submit"
-                            >Yükle</button
-                        >
-                        <button
-                            class="button"
-                            type="button"
-                            onclick={() => (selectedRecord = null)}
-                            >İptal</button
-                        >
-                    </footer>
-                </form>
-            </div>
-        </div>
-    {/if}
+
 </Layout>

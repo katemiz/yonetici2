@@ -1,6 +1,6 @@
 <script>
     import { untrack } from "svelte";
-    import { File, Plus } from "@lucide/svelte";
+    import { File, Plus, Paperclip } from "@lucide/svelte";
     import { page, router } from "@inertiajs/svelte";
     import Paginate from "./components/Paginate.svelte";
     import SearchBox from "./components/SearchBox.svelte";
@@ -88,8 +88,7 @@
                                 <th>Açıklama</th>
                                 <th class="has-text-right">Tutar</th>
                                 {#if !isResident}
-                                    <th>&nbsp;</th>
-                                    <th class="has-text-right">Dosya</th>
+                                    <th><Paperclip size={18} /></th>
                                 {/if}
                                 <th>Son Ödeme</th>
                             </tr>
@@ -112,24 +111,13 @@
                                         >{record.amount} {bina.pbirimi}</td
                                     >
                                     {#if !isResident}
+
                                         <td>
-                                            <button
-                                                class="button is-white p-1"
-                                                type="button"
-                                                aria-label="Dosya ekle"
-                                                onclick={() =>
-                                                    (selectedRecord =
-                                                        record.id)}
-                                            >
-                                                <Plus size={18} />
-                                            </button>
-                                        </td>
-                                        <td class="has-text-right">
                                             {#each record.files as file}
                                                 <a
                                                     href={file.url ??
                                                         `/kayit-dosya-gor/${file.id}`}
-                                                    class="ml-2"
+                                                    class="mr-2"
                                                     title={file.name}
                                                 >
                                                     <File size={18} />
