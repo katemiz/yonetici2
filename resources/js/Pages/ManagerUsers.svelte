@@ -5,6 +5,7 @@
 
     let { managers } = $props();
     let errors = $derived(page?.props?.errors ?? {});
+    let flash = $derived(page?.props?.flash ?? {});
     let csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 </script>
 
@@ -26,6 +27,17 @@
                 </div>
             {/if}
 
+            {#if flash.success}
+                <div class="notification is-success is-light" role="status">
+                    <p>{flash.success}</p>
+                    {#if flash.email_sent === true}
+                        <p>Yönetici e-postası gönderildi.</p>
+                    {:else if flash.email_sent === false}
+                        <p>Yönetici e-postası gönderilemedi.</p>
+                    {/if}
+                </div>
+            {/if}
+
             <section class="box">
                 <h3 class="title is-4">Yeni Yönetici Ekle</h3>
                 <form method="POST" action="/admin/managers">
@@ -42,16 +54,6 @@
                         <div class="column">
                             <label class="label" for="manager-email">E-posta</label>
                             <input class="input" id="manager-email" name="email" type="email" required maxlength="255">
-                        </div>
-                    </div>
-                    <div class="columns">
-                        <div class="column">
-                            <label class="label" for="manager-password">İlk Parola</label>
-                            <input class="input" id="manager-password" name="password" type="password" required minlength="8" autocomplete="new-password">
-                        </div>
-                        <div class="column">
-                            <label class="label" for="manager-password-confirmation">İlk Parola (Tekrar)</label>
-                            <input class="input" id="manager-password-confirmation" name="password_confirmation" type="password" required minlength="8" autocomplete="new-password">
                         </div>
                         <div class="column is-one-quarter">
                             <label class="label" for="manager-quota">Bina Kotası</label>

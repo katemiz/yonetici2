@@ -3,10 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ManagerAccountCreated;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -38,7 +43,6 @@ class ManagerUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', 'min:8'],
             'building_quota' => ['required', 'integer', 'min:1'],
         ]);
 
@@ -46,7 +50,7 @@ class ManagerUserController extends Controller
             'name' => $data['name'],
             'lastname' => $data['lastname'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => Hash::make(Str::random(24)),
         ]);
         $manager->forceFill([
             'role' => 'manager',
@@ -55,7 +59,18 @@ class ManagerUserController extends Controller
             'email_verified_at' => now(),
         ])->save();
 
-        return redirect()->route('admin.managers.index')->with('success', 'Yönetici hesabı oluşturuldu.');
+        $emailSent = false;
+        try {
+            $token = Password::broker()->createToken($manager);
+            Mail::to($manager->email)->send(new ManagerAccountCreated($manager, $token));
+            $emailSent = true;
+        } catch (\Throwable $e) {
+            Log::error('Yönetici hesap e-postası gönderilemedi: '.$e->getMessage());
+        }
+
+        return redirect()->route('admin.managers.index')
+            ->with('success', 'Yönetici hesabı oluşturuldu.')
+            ->with('email_sent', $emailSent);
     }
 
     public function update(Request $request, User $manager): RedirectResponse

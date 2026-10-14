@@ -1,6 +1,6 @@
 <script>
     import { untrack } from "svelte";
-    import { File, Plus, TagPlus, ReceiptText, BookDown } from "@lucide/svelte";
+    import { File, Plus, ReceiptText, Paperclip, Wallet } from "@lucide/svelte";
     import { page, router } from "@inertiajs/svelte";
     import Paginate from "./components/Paginate.svelte";
     import SearchBox from "./components/SearchBox.svelte";
@@ -100,7 +100,9 @@
                                 <th>Borçlu</th>
                                 <th>Açıklama</th>
                                 <th class="has-text-right">Tutar</th>
-                                {#if !isResident}<th>Dosya</th>{/if}
+                                {#if !isResident}
+                                    <th><Paperclip size={22} /></th>
+                                {/if}
                                 <th>Eklenme Zamanı</th>
                                 <th class="has-text-right">İşlemler</th>
                             </tr>
@@ -126,21 +128,11 @@
                                     >
                                     {#if !isResident}
                                         <td>
-                                            <button
-                                                class="button is-white p-1"
-                                                type="button"
-                                                aria-label="Dosya ekle"
-                                                onclick={() =>
-                                                    (selectedRecord =
-                                                        record.id)}
-                                            >
-                                                <TagPlus size={22} />
-                                            </button>
                                             {#each record.files as file}
                                                 <a
                                                     href={file.url ??
                                                         `/kayit-dosya-gor/${file.id}`}
-                                                    class="ml-2"
+                                                    class="mr-2"
                                                     title={file.name}
                                                 >
                                                     <File size={22} />
@@ -164,19 +156,19 @@
                                         {:else}
                                             <a
                                                 href={`/makbuzpdf/${record.id}`}
-                                                class="icon"
+                                                class="button is-ghost p-1"
                                                 title="Makbuz"
                                             >
                                                 <ReceiptText size={22} />
                                             </a>
                                             <button
-                                                class="button is-white p-1"
+                                                class="button is-ghost p-1"
                                                 type="button"
                                                 title="Alındı"
                                                 onclick={() =>
                                                     confirmReceived(record.id)}
                                             >
-                                                <BookDown size={22} />
+                                                <Wallet size={22} />
                                             </button>
                                         {/if}
                                     </td>

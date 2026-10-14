@@ -35,6 +35,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'email_sent' => fn () => $request->session()->get('email_sent'),
+            ],
             'selected_bina' => $request->session()->get('selected_bina'),
             'selected_bina_id' => $request->session()->get('resident_id')
                 ? $request->session()->get('resident_bina_id')

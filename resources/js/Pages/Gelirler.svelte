@@ -85,7 +85,7 @@
                             <th>Açıklama</th>
                             <th class="has-text-right">Tutar</th>
                             {#if !isResident}
-                                <th>&nbsp;</th>
+                                <th><Paperclip size={18} /></th>
                             {/if}
                             <th class="has-text-right">İşlemler</th>
                         </tr>
@@ -111,20 +111,10 @@
                                 >
                                 {#if !isResident}
                                     <td>
-                                        <button
-                                            class="button is-white p-1"
-                                            type="button"
-                                            aria-label="Dosya ekle"
-                                            onclick={() =>
-                                                (selectedRecord = record.id)}
-                                        >
-                                            <Paperclip size={18} />
-                                        </button>
-
                                         {#each record.files as file}
                                             <a
                                                 href={`/kayit-dosya-gor/${file.id}`}
-                                                class="ml-2"
+                                                class="mr-2"
                                                 title={file.name}
                                             >
                                                 <File size={18} />
