@@ -1,6 +1,6 @@
 <script>
     import { untrack } from "svelte";
-    import { File, Plus, Receipt, Paperclip } from "@lucide/svelte";
+    import { File, Plus, ReceiptTurkishLira, Paperclip } from "@lucide/svelte";
     import { page, router } from "@inertiajs/svelte";
     import Paginate from "./components/Paginate.svelte";
     import Title from "./components/Title.svelte";
@@ -131,7 +131,7 @@
                                                 title="Makbuz"
                                                 aria-label="Makbuz"
                                             >
-                                                <Receipt size={18} />
+                                                <ReceiptTurkishLira size={20} />
                                             </a>
                                         {/if}
                                     {:else}
@@ -140,7 +140,7 @@
                                             class="icon"
                                             title="Makbuz"
                                         >
-                                            <Receipt size={18} />
+                                            <ReceiptTurkishLira size={20} />
                                         </a>
                                     {/if}
                                 </td>

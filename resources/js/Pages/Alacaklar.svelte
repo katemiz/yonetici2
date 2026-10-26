@@ -1,6 +1,12 @@
 <script>
     import { untrack } from "svelte";
-    import { File, Plus, ReceiptText, Paperclip, Wallet } from "@lucide/svelte";
+    import {
+        File,
+        Plus,
+        ReceiptTurkishLira,
+        Paperclip,
+        Wallet,
+    } from "@lucide/svelte";
     import { page, router } from "@inertiajs/svelte";
     import Paginate from "./components/Paginate.svelte";
     import SearchBox from "./components/SearchBox.svelte";
@@ -142,24 +148,26 @@
                                     <td>{record.created_at}</td>
                                     <td class="has-text-right">
                                         {#if isResident}
-                                            {#if record.can_view_receipt}
+                                            <!--                                             {#if record.can_view_receipt}
                                                 <a
                                                     href={`/makbuz/${record.id}`}
                                                     class="icon"
                                                     title="Makbuz"
                                                     aria-label="Makbuz"
                                                 >
-                                                    <ReceiptText size={20} />
+                                                    <ReceiptTurkishLira
+                                                        size={20}
+                                                    />
                                                 </a>
-                                            {/if}
+                                            {/if} -->
                                         {:else}
-                                            <a
+                                            <!--                                             <a
                                                 href={`/makbuzpdf/${record.id}`}
                                                 class="button is-ghost p-1"
                                                 title="Makbuz"
                                             >
-                                                <ReceiptText size={20} />
-                                            </a>
+                                                <ReceiptTurkishLira size={20} />
+                                            </a> -->
                                             <button
                                                 class="button is-ghost p-1"
                                                 type="button"
