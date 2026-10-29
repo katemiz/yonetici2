@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\ManagerAccountCreated;
+use App\Models\Bina;
+use App\Models\Sakin;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -35,6 +38,87 @@ class ManagerUserController extends Controller
             ]);
 
         return Inertia::render('ManagerUsers', ['managers' => $managers]);
+    }
+
+    public function select(int $binaId): Response
+    {
+        $bina = Bina::query()
+            ->accessibleTo(Auth::user())
+            ->findOrFail($binaId);
+
+        $sakinler = $bina->sakinler()
+            ->where('is_active', 1)
+            ->orderBy('name')
+            ->orderBy('lastname')
+            ->get()
+            ->map(fn (Sakin $sakin) => [
+                'id' => $sakin->id,
+                'name' => $sakin->name,
+                'lastname' => $sakin->lastname,
+                'email' => $sakin->email,
+                'door_no' => $sakin->door_no,
+                'is_evsahibi' => (bool) $sakin->is_evsahibi,
+                'is_active' => (bool) $sakin->is_active,
+            ]);
+
+        $managerUser = User::query()->find($bina->user_id);
+
+        return Inertia::render('ManagerSelect', [
+            'bina' => [
+                'id' => $bina->id,
+                'name' => $bina->name,
+                'building_quota' => User::query()->find($bina->user_id)?->building_quota ?? 1,
+            ],
+            'sakinler' => $sakinler,
+            'current_manager' => $managerUser ? [
+                'id' => $managerUser->id,
+                'name' => $managerUser->name,
+                'lastname' => $managerUser->lastname,
+                'email' => $managerUser->email,
+                'is_active' => (bool) $managerUser->is_active,
+            ] : null,
+        ]);
+    }
+
+    public function assign(Request $request, int $binaId): RedirectResponse
+    {
+        $bina = Bina::query()
+            ->accessibleTo(Auth::user())
+            ->findOrFail($binaId);
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'lastname' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'building_quota' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $manager = new User([
+            'name' => $data['name'],
+            'lastname' => $data['lastname'],
+            'email' => $data['email'],
+            'password' => Hash::make(Str::random(24)),
+        ]);
+        $manager->forceFill([
+            'role' => 'manager',
+            'building_quota' => $data['building_quota'],
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ])->save();
+        $bina->update(['user_id' => $manager->id]);
+
+        $emailSent = false;
+        try {
+            $token = Password::broker()->createToken($manager);
+            Mail::to($manager->email)->send(new ManagerAccountCreated($manager, $token));
+            $emailSent = true;
+        } catch (\Throwable $e) {
+            Log::error('Yönetici hesap e-postası gönderilemedi: '.$e->getMessage());
+        }
+
+        return redirect()->route('admin.managers.index')
+            ->with('success', 'Yönetici başarıyla seçildi.')
+            ->with('email_sent', $emailSent);
     }
 
     public function store(Request $request): RedirectResponse

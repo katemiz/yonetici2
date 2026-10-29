@@ -44,6 +44,10 @@ Route::middleware(['auth', 'active.manager'])->group(function () {
     Route::middleware('superuser')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/managers', [\App\Http\Controllers\Admin\ManagerUserController::class, 'index'])
             ->name('managers.index');
+        Route::get('/managers/select/{bina}', [\App\Http\Controllers\Admin\ManagerUserController::class, 'select'])
+            ->name('managers.select');
+        Route::post('/managers/assign/{bina}', [\App\Http\Controllers\Admin\ManagerUserController::class, 'assign'])
+            ->name('managers.assign');
         Route::post('/managers', [\App\Http\Controllers\Admin\ManagerUserController::class, 'store'])
             ->name('managers.store');
         Route::patch('/managers/{manager}', [\App\Http\Controllers\Admin\ManagerUserController::class, 'update'])
@@ -158,3 +162,9 @@ Route::middleware(['auth', 'active.manager'])->group(function () {
 });
 
 Route::get('/makbuz/{record?}', [DokumController::class, 'makbuz'])->name('makbuz');
+
+
+
+Route::get('/makbuzview', fn () => Inertia::render('Makbuz'));
+
+

@@ -1,5 +1,5 @@
 <script>
-    import { ArrowLeft, Building2, Pencil, Settings, Users } from '@lucide/svelte';
+    import { ArrowLeft, Building2, Pencil, Settings, Users, UserCog } from '@lucide/svelte';
     import Layout from './Shared/Layout.svelte';
 
     let { bina } = $props();
@@ -27,6 +27,11 @@
                         <li>
                             <a href={`/sakin-list/${bina.id}`}>
                                 <span class="icon-text"><span class="icon"><Users size={18} /></span><span>Bina Sakinleri ({bina.sakinler_count})</span></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href={`/admin/managers/select/${bina.id}`}>
+                                <span class="icon-text"><span class="icon"><UserCog size={18} /></span><span>Yönetici Değiştir</span></span>
                             </a>
                         </li>
                         <li>
