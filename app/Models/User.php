@@ -17,7 +17,24 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var array<int, string>
      */
-    protected $fillable = ['name', 'lastname', 'email', 'password'];
+    protected $fillable = [
+        'name',
+        'lastname',
+        'email',
+        'password',
+        'bina_id',
+        'door_no',
+        'is_evsahibi',
+        'phone',
+        'payratio',
+        'giris_tarihi',
+        'building_quota',
+        'remarks',
+        'is_sakin',
+        'is_manager',
+        'is_superuser',
+        'is_active',
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -34,11 +51,27 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_active' => 'boolean',
+        'is_sakin' => 'boolean',
+        'is_manager' => 'boolean',
+        'is_superuser' => 'boolean',
+        'is_evsahibi' => 'boolean',
+        'building_quota' => 'integer',
+        'payratio' => 'float',
     ];
 
     public function isSuperuser(): bool
     {
-        return $this->role === 'superuser';
+        return (bool) $this->is_superuser;
+    }
+
+    public function isManager(): bool
+    {
+        return (bool) $this->is_manager;
+    }
+
+    public function isSakin(): bool
+    {
+        return (bool) $this->is_sakin;
     }
 
     public function canCreateBuilding(): bool

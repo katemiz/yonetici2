@@ -223,10 +223,10 @@ class DurumList extends Component
         // $q->where('bina_id', '=', session('bina_id'));
 
         $q = Kayit::query()
-            ->join('sakinler', 'kayitlar.sakin_id', '=', 'sakinler.id')
+            ->join('users', 'kayitlar.sakin_id', '=', 'users.id')
             ->where('kayitlar.bina_id', '=', session('bina_id'))
             ->where('kayitlar.tur', '=', 'alacak')
-            ->orderBy('sakinler.door_no','asc')
+            ->orderBy('users.door_no','asc')
             ->orderBy($this->sortTimeField, $this->sortTimeDirection)
             ->select('kayitlar.*');
 

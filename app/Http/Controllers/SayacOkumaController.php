@@ -6,7 +6,7 @@ use App\Models\Bedel;
 use App\Models\Bina;
 use App\Models\Kayit;
 use App\Models\Okuma;
-use App\Models\Sakin;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,8 +30,9 @@ class SayacOkumaController extends Controller
             ->where('tur', 'SAYAC')
             ->orderBy('title')
             ->get();
-        $residents = Sakin::query()
+        $residents = User::query()
             ->where('bina_id', $building->id)
+            ->where('is_sakin', true)
             ->where('is_active', 1)
             ->orderBy('door_no')
             ->get();
@@ -59,7 +60,7 @@ class SayacOkumaController extends Controller
                 'title' => $meter->title,
                 'unit' => $meter->unit,
                 'rate' => (float) $meter->bedel,
-                'residents' => $residents->map(function (Sakin $resident) use ($meter, $readings) {
+                'residents' => $residents->map(function (User $resident) use ($meter, $readings) {
                     $items = $readings->get($meter->id . ':' . $resident->id, collect());
 
                     return [
@@ -108,8 +109,9 @@ class SayacOkumaController extends Controller
             ->where('bina_id', $building->id)
             ->where('tur', 'SAYAC')
             ->findOrFail($data['bedel_id']);
-        $resident = Sakin::query()
+        $resident = User::query()
             ->where('bina_id', $building->id)
+            ->where('is_sakin', true)
             ->where('is_active', 1)
             ->findOrFail($data['sakin_id']);
 

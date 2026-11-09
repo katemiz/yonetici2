@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bina;
 use App\Models\Kayit;
-use App\Models\Sakin;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -57,9 +57,9 @@ class ResidentStatusController extends Controller
                 ->with(['sakin', 'dosyalar'])
                 ->where('kayitlar.bina_id', $building->id)
                 ->where('kayitlar.tur', $type)
-                ->leftJoin('sakinler', 'kayitlar.sakin_id', '=', 'sakinler.id')
+                ->leftJoin('users', 'kayitlar.sakin_id', '=', 'users.id')
                 ->select('kayitlar.*')
-                ->when($section === 'alacaklar', fn ($query) => $query->orderBy('sakinler.door_no'))
+                ->when($section === 'alacaklar', fn ($query) => $query->orderBy('users.door_no'))
                 ->orderByDesc('kayitlar.created_at');
 
             if ($search !== '') {
@@ -140,10 +140,11 @@ class ResidentStatusController extends Controller
         return $building;
     }
 
-    private function residentForRequest(Request $request, ?Bina $building = null): Sakin
+    private function residentForRequest(Request $request, ?Bina $building = null): User
     {
-        $resident = Sakin::query()
+        $resident = User::query()
             ->whereKey($request->session()->get('resident_id'))
+            ->where('is_sakin', true)
             ->where('is_active', true)
             ->firstOrFail();
 

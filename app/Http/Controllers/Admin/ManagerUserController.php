@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\ManagerAccountCreated;
 use App\Models\Bina;
-use App\Models\Sakin;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +22,7 @@ class ManagerUserController extends Controller
     public function index(): Response
     {
         $managers = User::query()
-            ->where('role', 'manager')
+            ->where('is_manager', true)
             ->withCount('binalar')
             ->orderBy('name')
             ->paginate(20)
@@ -42,23 +41,34 @@ class ManagerUserController extends Controller
 
     public function select(int $binaId): Response
     {
+
         $bina = Bina::query()
             ->accessibleTo(Auth::user())
             ->findOrFail($binaId);
 
-        $sakinler = $bina->sakinler()
-            ->where('is_active', 1)
+        $sakinler = User::query()
+            ->where(function ($query) {
+                $query->where('bina_id', $binaId)
+                    ->where('is_sakin', true)
+                    ->where('is_active', true);
+                $query->orWhere(function ($q) {
+                    $q->where('is_manager', true)
+                        ->where('is_active', true);
+                });
+            })
             ->orderBy('name')
             ->orderBy('lastname')
             ->get()
-            ->map(fn (Sakin $sakin) => [
-                'id' => $sakin->id,
-                'name' => $sakin->name,
-                'lastname' => $sakin->lastname,
-                'email' => $sakin->email,
-                'door_no' => $sakin->door_no,
-                'is_evsahibi' => (bool) $sakin->is_evsahibi,
-                'is_active' => (bool) $sakin->is_active,
+            ->map(fn (User $user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'lastname' => $user->lastname,
+                'email' => $user->email,
+                'door_no' => $user->door_no,
+                'is_evsahibi' => (bool) $user->is_evsahibi,
+                'is_active' => (bool) $user->is_active,
+                'is_sakin' => (bool) $user->is_sakin,
+                'is_manager' => (bool) $user->is_manager,
             ]);
 
         $managerUser = User::query()->find($bina->user_id);
@@ -100,7 +110,8 @@ class ManagerUserController extends Controller
             'password' => Hash::make(Str::random(24)),
         ]);
         $manager->forceFill([
-            'role' => 'manager',
+            'is_manager' => true,
+            'bina_id' => $binaId,
             'building_quota' => $data['building_quota'],
             'is_active' => true,
             'email_verified_at' => now(),
@@ -137,7 +148,7 @@ class ManagerUserController extends Controller
             'password' => Hash::make(Str::random(24)),
         ]);
         $manager->forceFill([
-            'role' => 'manager',
+            'is_manager' => true,
             'building_quota' => $data['building_quota'],
             'is_active' => true,
             'email_verified_at' => now(),
@@ -159,7 +170,7 @@ class ManagerUserController extends Controller
 
     public function update(Request $request, User $manager): RedirectResponse
     {
-        abort_unless($manager->role === 'manager', 404);
+        abort_unless($manager->is_manager, 404);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -181,7 +192,7 @@ class ManagerUserController extends Controller
 
     public function toggleActive(User $manager): RedirectResponse
     {
-        abort_unless($manager->role === 'manager', 404);
+        abort_unless($manager->is_manager, 404);
 
         $manager->is_active = !$manager->is_active;
         $manager->save();

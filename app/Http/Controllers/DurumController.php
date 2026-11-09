@@ -59,9 +59,9 @@ class DurumController extends Controller
             ->with(['sakin', 'dosyalar', 'media'])
             ->where('kayitlar.bina_id', $bina->id)
             ->where('kayitlar.tur', 'alacak')
-            ->leftJoin('sakinler', 'kayitlar.sakin_id', '=', 'sakinler.id')
+            ->leftJoin('users', 'kayitlar.sakin_id', '=', 'users.id')
             ->select('kayitlar.*')
-            ->orderBy('sakinler.door_no')
+            ->orderBy('users.door_no')
             ->orderByDesc('kayitlar.created_at');
 
         if ($search !== '') {
@@ -131,7 +131,7 @@ class DurumController extends Controller
             ->with(['sakin', 'dosyalar', 'media'])
             ->where('kayitlar.bina_id', $bina->id)
             ->where('kayitlar.tur', 'gelir')
-            ->leftJoin('sakinler', 'kayitlar.sakin_id', '=', 'sakinler.id')
+            ->leftJoin('users', 'kayitlar.sakin_id', '=', 'users.id')
             ->select('kayitlar.*')
             ->orderByDesc('kayitlar.created_at');
 

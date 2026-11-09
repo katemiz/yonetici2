@@ -37,6 +37,6 @@ class Kayit extends Model implements HasMedia
 
     public function sakin()
     {
-        return $this->belongsTo(Sakin::class);
+        return $this->belongsTo(User::class);
     }
 }

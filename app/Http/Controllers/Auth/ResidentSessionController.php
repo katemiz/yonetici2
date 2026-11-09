@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bina;
-use App\Models\Sakin;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -43,7 +43,11 @@ class ResidentSessionController extends Controller
         $resident = null;
         $building = null;
 
-        foreach (Sakin::where('phone', $phone)->where('is_active', true)->get() as $candidate) {
+        foreach (User::where('bina_id', '!=', null)
+            ->where('is_sakin', true)
+            ->where('phone', $phone)
+            ->where('is_active', true)
+            ->get() as $candidate) {
             $candidateBuilding = Bina::find($candidate->bina_id);
 
             if ($candidateBuilding && $candidateBuilding->resident_access_code &&

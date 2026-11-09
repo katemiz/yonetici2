@@ -168,15 +168,26 @@
                                             >
                                                 <ReceiptTurkishLira size={20} />
                                             </a> -->
-                                            <button
-                                                class="button is-ghost p-1"
-                                                type="button"
-                                                title="Alındı"
-                                                onclick={() =>
-                                                    confirmReceived(record.id)}
+                                            <form
+                                                id={`received-${record.id}`}
+                                                method="POST"
+                                                action={`/durum/alacaklar/${record.id}/received`}
                                             >
-                                                <Wallet size={22} />
-                                            </button>
+                                                <input
+                                                    type="hidden"
+                                                    name="_token"
+                                                    value={csrfToken}
+                                                />
+                                                <button
+                                                    class="button is-ghost p-1"
+                                                    type="button"
+                                                    title="Alındı"
+                                                    onclick={() =>
+                                                        confirmReceived(record.id)}
+                                                >
+                                                    <Wallet size={22} />
+                                                </button>
+                                            </form>
                                         {/if}
                                     </td>
                                 </tr>

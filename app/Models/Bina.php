@@ -27,13 +27,14 @@ class Bina extends Model
 
     public function sakinler()
     {
-        return $this->hasMany(Sakin::class);
+        return $this->hasMany(User::class)->where('is_sakin', true);
     }
 
     public function active_sakinler()
     {
-        return $this->hasMany(Sakin::class)
-            ->where('is_active', '=', 1)
+        return $this->hasMany(User::class)
+            ->where('is_sakin', true)
+            ->where('is_active', true)
             ->orderBy('door_no', 'asc')
             ->orderBy('id', 'asc');
     }

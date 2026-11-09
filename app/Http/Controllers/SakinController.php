@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bina;
-use App\Models\Sakin;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -43,11 +43,11 @@ class SakinController extends Controller
             ->when($sort === 'created_at', fn ($query) => $query->orderBy('created_at', $direction))
             ->paginate(Config::get('constants.table.no_of_results'))
             ->withQueryString();
-        $sakinler->getCollection()->transform(fn (Sakin $sakin) => [
-            'id' => $sakin->id,
-            'name' => $sakin->name,
-            'lastname' => $sakin->lastname,
-            'created_at' => $sakin->created_at?->format('d.m.Y H:i'),
+        $sakinler->getCollection()->transform(fn (User $user) => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'lastname' => $user->lastname,
+            'created_at' => $user->created_at?->format('d.m.Y H:i'),
         ]);
 
         return Inertia::render('SakinList', [
@@ -65,29 +65,25 @@ class SakinController extends Controller
         $bina = Bina::query()
             ->accessibleTo(Auth::user())
             ->findOrFail($request->route('id'));
-        $sakin = null;
-
-        if ($request->route('sakinid')) {
-            $sakin = $bina->sakinler()->findOrFail($request->route('sakinid'));
-        }
+        $user = $bina->sakinler()->findOrFail($request->route('sakinid'));
 
         return Inertia::render('SakinForm', [
             'bina' => [
                 'id' => $bina->id,
                 'name' => $bina->name,
             ],
-            'sakin' => $sakin ? [
-                'id' => $sakin->id,
-                'name' => $sakin->name,
-                'lastname' => $sakin->lastname,
-                'door_no' => $sakin->door_no,
-                'is_evsahibi' => $sakin->is_evsahibi,
-                'payratio' => $sakin->payratio,
-                'phone' => $sakin->phone,
-                'email' => $sakin->email,
-                'giris_tarihi' => $sakin->giris_tarihi,
-                'remarks' => $sakin->remarks,
-                'is_active' => $sakin->is_active,
+            'sakin' => $user ? [
+                'id' => $user->id,
+                'name' => $user->name,
+                'lastname' => $user->lastname,
+                'door_no' => $user->door_no,
+                'is_evsahibi' => (bool) $user->is_evsahibi,
+                'payratio' => $user->payratio,
+                'phone' => $user->phone,
+                'email' => $user->email,
+                'giris_tarihi' => $user->giris_tarihi,
+                'remarks' => $user->remarks,
+                'is_active' => (bool) $user->is_active,
             ] : null,
             'durum' => $this->durum,
             'oldInput' => [
@@ -121,15 +117,14 @@ class SakinController extends Controller
         $props['email'] = $req->input('email');
         $props['giris_tarihi'] = $req->input('giristarihi');
         $props['remarks'] = $req->input('editor_data');
-
         $props['is_active'] = $req->input('status');
+        $props['is_sakin'] = true;
 
-
-        $sakin = Sakin::create($props);
+        $user = User::create($props);
 
         return redirect()->route('sakinview', [
             'id' => $bina->id,
-            'sakinid' => $sakin->id,
+            'sakinid' => $user->id,
         ]);
     }
 
@@ -149,10 +144,10 @@ class SakinController extends Controller
         $props['email'] = $req->input('email');
         $props['giris_tarihi'] = $req->input('giristarihi');
         $props['remarks'] = $req->input('editor_data');
-
         $props['is_active'] = $req->input('status');
 
-        $bina->sakinler()->findOrFail($req->sakinid)->update($props);
+        $user = $bina->sakinler()->findOrFail($req->sakinid);
+        $user->update($props);
 
         return redirect()->route('sakinview', [
             'id' => $req->id,
@@ -179,30 +174,30 @@ class SakinController extends Controller
     public function viewSakin(Request $req)
     {
         $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
-        $sakin = $bina->sakinler()->findOrFail($req->sakinid);
+        $user = $bina->sakinler()->findOrFail($req->sakinid);
 
         return Inertia::render('SakinView', [
             'bina' => [
                 'id' => $bina->id,
                 'name' => $bina->name,
             ],
-            'sakin' => [
-                'id' => $sakin->id,
-                'name' => $sakin->name,
-                'lastname' => $sakin->lastname,
-                'door_no' => $sakin->door_no,
-                'is_evsahibi' => (bool) $sakin->is_evsahibi,
-                'phone' => $sakin->phone,
-                'email' => $sakin->email,
-                'giris_tarihi' => $sakin->giris_tarihi,
-                'payratio' => $sakin->payratio,
-                'remarks' => $sakin->remarks,
-                'is_active' => (bool) $sakin->is_active,
-                'created_at' => $sakin->created_at?->format('Y-m-d H:i:s'),
-                'created_human' => $sakin->carbon_created_at,
-                'updated_at' => $sakin->updated_at?->format('Y-m-d H:i:s'),
-                'updated_human' => $sakin->carbon_updated_at,
-            ],
+            'sakin' => $user ? [
+                'id' => $user->id,
+                'name' => $user->name,
+                'lastname' => $user->lastname,
+                'door_no' => $user->door_no,
+                'is_evsahibi' => (bool) $user->is_evsahibi,
+                'phone' => $user->phone,
+                'email' => $user->email,
+                'giris_tarihi' => $user->giris_tarihi,
+                'payratio' => $user->payratio,
+                'remarks' => $user->remarks,
+                'is_active' => (bool) $user->is_active,
+                'created_at' => $user->created_at?->format('Y-m-d H:i:s'),
+                'created_human' => $user->created_at?->diffForHumans(),
+                'updated_at' => $user->updated_at?->format('Y-m-d H:i:s'),
+                'updated_human' => $user->updated_at?->diffForHumans(),
+            ] : null,
             'durum' => $this->durum,
         ]);
     }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Bina;
 use App\Models\Kayit;
-use App\Models\Sakin;
 use App\Models\User;
 use Carbon\Carbon;
 use Hamcrest\Type\IsNumeric;
@@ -45,7 +44,7 @@ class PDFController extends Controller
         $this->borclu['isim'] = '-';
 
         if (is_numeric($this->kayit->sakin_id) && $this->kayit->sakin_id > 0) {
-            $owner = Sakin::find($this->kayit->sakin_id);
+            $owner = User::find($this->kayit->sakin_id);
 
             $this->borclu['yazi'] =
                 'Yalnız ' .

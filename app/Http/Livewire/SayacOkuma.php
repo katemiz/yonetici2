@@ -3,7 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\Okuma;
-use App\Models\Sakin;
+use App\Models\User;
 use App\Models\Bedel;
 use App\Models\Kayit;
 
@@ -115,7 +115,8 @@ class SayacOkuma extends Component
     {
         $bina_id = $this->current_bina_id;
 
-        $sakinler = Sakin::where('bina_id', '=', $bina_id)
+        $sakinler = User::where('bina_id', '=', $bina_id)
+            ->where('is_sakin', '=', true)
             ->where('is_active', '=', 1)
             ->orderBy('door_no', 'ASC')
             ->get()->toArray();
@@ -161,7 +162,7 @@ class SayacOkuma extends Component
     public function yeniOkuma($idSayacTur,$idSakin)
     {
         $this->bedel_id = $idSayacTur;
-        $this->currentSakin = Sakin::find(id: $idSakin);
+        $this->currentSakin = User::find($idSakin);
         $this->toggleModal('okumaModal');
     }
 
@@ -221,7 +222,7 @@ class SayacOkuma extends Component
 
         $okuma = Okuma::find($idOkuma);
 
-        $this->currentSakin = Sakin::find(id: $okuma->sakin_id);
+        $this->currentSakin = User::find($okuma->sakin_id);
 
         $this->bedel_id = $okuma->bedel_id;
 
@@ -246,7 +247,7 @@ class SayacOkuma extends Component
 
         $this->idOkuma = $idOkuma;
 
-        $this->currentSakin = Sakin::find(id: $idSakin);
+        $this->currentSakin = User::find($idSakin);
         $this->toggleModal('bedelModal');
 
         $lastTwo = Okuma::where('sakin_id', '=', $idSakin)

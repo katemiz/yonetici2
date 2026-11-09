@@ -243,7 +243,7 @@ class KayitController extends Controller
             $req->validate([
                 'borclu' => [
                     'required',
-                    Rule::exists('sakinler', 'id')->where(fn ($query) => $query
+                    Rule::exists('users', 'id')->where(fn ($query) => $query
                         ->where('bina_id', $this->bina->id)
                         ->where('is_active', 1)),
                 ],
@@ -358,7 +358,7 @@ class KayitController extends Controller
             $request->validate([
                 'borclu' => [
                     'required',
-                    Rule::exists('sakinler', 'id')->where(fn ($query) => $query
+                    Rule::exists('users', 'id')->where(fn ($query) => $query
                         ->where('bina_id', $this->bina->id)
                         ->where('is_active', 1)),
                 ],

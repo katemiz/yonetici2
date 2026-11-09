@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bina;
 use App\Models\Kayit;
-use App\Models\Sakin;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -120,8 +120,9 @@ class DokumController extends Controller
         $recordId = $request->route('record');
 
         if ($request->session()->has('resident_id')) {
-            $resident = Sakin::query()
+            $resident = User::query()
                 ->whereKey($request->session()->get('resident_id'))
+                ->where('is_sakin', true)
                 ->where('is_active', true)
                 ->firstOrFail();
             $building = Bina::findOrFail($request->session()->get('resident_bina_id'));

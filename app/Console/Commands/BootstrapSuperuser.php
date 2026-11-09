@@ -23,7 +23,7 @@ class BootstrapSuperuser extends Command
 
         $user = User::query()->where('email', $email)->first();
         $existingAdmin = User::query()
-            ->where('role', 'superuser')
+            ->where('is_superuser', true)
             ->when($user, fn ($query) => $query->where('id', '!=', $user->id))
             ->exists();
 
@@ -58,7 +58,7 @@ class BootstrapSuperuser extends Command
         }
 
         $user->forceFill([
-            'role' => 'superuser',
+            'is_superuser' => true,
             'building_quota' => 0,
             'is_active' => true,
             'email_verified_at' => $user->email_verified_at ?? now(),

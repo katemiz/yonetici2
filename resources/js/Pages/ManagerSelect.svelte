@@ -34,14 +34,12 @@
         </a>
 
         {#if current_manager}
-            <div class="notification is-info is-light" role="status">
+            <div class="notification is-info is-light mt-6" role="status">
                 <p>
-                    <strong>Şu anki yönetici:</strong>
+                    <strong>Yönetici: </strong>
                     {current_manager.name}
-                    {current_manager.id}
                     {current_manager.lastname}
                     ({current_manager.email})
-                    {#if current_manager.is_active}Aktif{:else}Pasif{/if}
                 </p>
             </div>
         {/if}
@@ -65,13 +63,12 @@
                             <tr>
                                 <td
                                     >{sakin.name}
-                                    {sakin.id}
                                     {sakin.lastname}
 
                                     {#if sakin.id === current_manager?.id}
                                         <br />
-                                        <span class="tag is-info is-light"
-                                            >Şu anki yönetici</span
+                                        <span class="tag is-black"
+                                            >Yönetici</span
                                         >
                                     {/if}
                                 </td>
