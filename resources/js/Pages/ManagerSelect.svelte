@@ -6,6 +6,8 @@
     let { bina, sakinler, current_manager } = $props();
 
     function chooseManager(sakin) {
+        console.log("Assigning manager:", sakin, "to building:", bina);
+
         router.post(`/admin/managers/assign/${bina.id}`, {
             name: sakin.name,
             lastname: sakin.lastname,

@@ -77,7 +77,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function canCreateBuilding(): bool
     {
         return $this->isSuperuser()
-            || \App\Models\Bina::query()->where('user_id', $this->id)->count() < $this->building_quota;
+            || \App\Models\Bina::query()->where('manager_id', $this->id)->count() < $this->building_quota;
     }
 
     public function binalar()

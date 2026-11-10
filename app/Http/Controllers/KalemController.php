@@ -27,7 +27,7 @@ class KalemController extends Controller
     public function add(Request $req)
     {
         $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
-        $props['user_id'] = $bina->user_id;
+        $props['user_id'] = $bina->manager_id;
         $props['bina_id'] = $bina->id;
         $props['title'] = $req->input('title');
 
@@ -41,7 +41,7 @@ class KalemController extends Controller
     public function update(Request $req)
     {
         $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
-        $props['user_id'] = $bina->user_id;
+        $props['user_id'] = $bina->manager_id;
         $props['bina_id'] = $bina->id;
         $props['title'] = $req->input('title');
 

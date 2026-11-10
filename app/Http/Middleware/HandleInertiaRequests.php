@@ -33,7 +33,7 @@ class HandleInertiaRequests extends Middleware
             ] : null,
             'buildingQuota' => $request->user() && !$request->user()->isSuperuser() ? [
                 'limit' => $request->user()->building_quota,
-                'used' => \App\Models\Bina::query()->where('user_id', $request->user()->id)->count(),
+                'used' => \App\Models\Bina::query()->where('manager_id', $request->user()->id)->count(),
             ] : null,
             'auth' => [
                 'user' => $request->user(),

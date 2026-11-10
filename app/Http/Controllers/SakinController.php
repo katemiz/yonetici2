@@ -112,7 +112,7 @@ class SakinController extends Controller
         $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
         $this->validateSakin($req);
 
-        $props['user_id'] = $bina->user_id;
+        $props['user_id'] = $bina->manager_id;
         $props['bina_id'] = $bina->id;
         $props['name'] = $req->input('isim');
         $props['lastname'] = $req->input('soyisim');
@@ -140,7 +140,7 @@ class SakinController extends Controller
         $bina = Bina::query()->accessibleTo(Auth::user())->findOrFail($req->id);
         $this->validateSakin($req);
 
-        $props['user_id'] = $bina->user_id;
+        $props['user_id'] = $bina->manager_id;
         $props['bina_id'] = $bina->id;
         $props['name'] = $req->input('isim');
         $props['lastname'] = $req->input('soyisim');

@@ -187,7 +187,7 @@ class KayitController extends Controller
             ],
         ]);
 
-        $props['user_id'] = $this->bina->user_id;
+        $props['user_id'] = $this->bina->manager_id;
         $props['bina_id'] = $this->bina->id;
         $props['sakin_id'] = 0;
         $props['remarks'] = $req->input('editor_data');
@@ -414,7 +414,7 @@ class KayitController extends Controller
             'reading_type' => 'required',
         ]);
 
-        $props['user_id'] = $this->bina->user_id;
+        $props['user_id'] = $this->bina->manager_id;
         $props['bina_id'] = $this->bina->id;
         $props['bedel_id'] = $req->input('reading_type');
 

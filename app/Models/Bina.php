@@ -21,7 +21,13 @@ class Bina extends Model
     {
         return $user->isSuperuser()
             ? $query
-            : $query->where('user_id', $user->id);
+            : $query->where('manager_id', $user->id);
+    }
+
+
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
     }
 
 

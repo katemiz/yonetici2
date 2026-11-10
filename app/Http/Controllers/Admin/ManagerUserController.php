@@ -47,7 +47,7 @@ class ManagerUserController extends Controller
             ->findOrFail($binaId);
 
         $sakinler = User::query()
-            ->where(function ($query) {
+            ->where(function ($query) use ($binaId) {
                 $query->where('bina_id', $binaId)
                     ->where('is_sakin', true)
                     ->where('is_active', true);
@@ -71,13 +71,13 @@ class ManagerUserController extends Controller
                 'is_manager' => (bool) $user->is_manager,
             ]);
 
-        $managerUser = User::query()->find($bina->user_id);
+        $managerUser = User::query()->find($bina->manager_id);
 
         return Inertia::render('ManagerSelect', [
             'bina' => [
                 'id' => $bina->id,
                 'name' => $bina->name,
-                'building_quota' => User::query()->find($bina->user_id)?->building_quota ?? 1,
+                'building_quota' => User::query()->find($bina->manager_id)?->building_quota ?? 1,
             ],
             'sakinler' => $sakinler,
             'current_manager' => $managerUser ? [
@@ -99,16 +99,21 @@ class ManagerUserController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'building_quota' => ['required', 'integer', 'min:1'],
         ]);
 
-        $manager = new User([
-            'name' => $data['name'],
-            'lastname' => $data['lastname'],
-            'email' => $data['email'],
-            'password' => Hash::make(Str::random(24)),
-        ]);
+        $manager = User::query()->where('email', $data['email'])->first();
+
+        if (! $manager) {
+            $manager = new User([
+                'name' => $data['name'],
+                'lastname' => $data['lastname'],
+                'email' => $data['email'],
+                'password' => Hash::make(Str::random(24)),
+            ]);
+        }
+
         $manager->forceFill([
             'is_manager' => true,
             'bina_id' => $binaId,
@@ -116,7 +121,7 @@ class ManagerUserController extends Controller
             'is_active' => true,
             'email_verified_at' => now(),
         ])->save();
-        $bina->update(['user_id' => $manager->id]);
+        $bina->update(['manager_id' => $manager->id]);
 
         $emailSent = false;
         try {

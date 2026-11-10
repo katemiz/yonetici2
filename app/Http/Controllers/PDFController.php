@@ -31,7 +31,7 @@ class PDFController extends Controller
         $this->bina = Bina::query()
             ->accessibleTo(Auth::user())
             ->findOrFail(session('bina_id'));
-        $this->yonetici = User::find($this->bina->user_id);
+        $this->yonetici = User::find($this->bina->manager_id);
     }
 
 
@@ -768,7 +768,7 @@ class PDFController extends Controller
         $this->bina = Bina::query()
             ->accessibleTo(Auth::user())
             ->findOrFail($idBina);
-        $this->yonetici = User::find($this->bina->user_id);
+        $this->yonetici = User::find($this->bina->manager_id);
 
         foreach ($this->bina->sakinler as $sakin) {
             $this->sakinler[$sakin->id] = $sakin->name . ' ' . $sakin->lastname;

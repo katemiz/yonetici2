@@ -116,7 +116,7 @@ class SayacOkumaController extends Controller
             ->findOrFail($data['sakin_id']);
 
         Okuma::create([
-            'user_id' => $building->user_id,
+            'user_id' => $building->manager_id,
             'bina_id' => $building->id,
             'bedel_id' => $meter->id,
             'sakin_id' => $resident->id,
@@ -193,7 +193,7 @@ class SayacOkumaController extends Controller
             $lastValue = (float) $reading->okuma_degeri;
             $amount = abs($lastValue - $firstValue) * (float) $meter->bedel;
             $record = Kayit::create([
-                'user_id' => $building->user_id,
+                'user_id' => $building->manager_id,
                 'bina_id' => $building->id,
                 'sakin_id' => $reading->sakin_id,
                 'tur' => 'alacak',
