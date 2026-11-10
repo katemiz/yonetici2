@@ -60,11 +60,16 @@
     let editorError = $state("");
 
     function value(field, fallback = "") {
-        return oldInput?.[field] ?? fallback ?? "";
+        const v = oldInput?.[field] ?? fallback ?? "";
+        if (v === true) return "1";
+        if (v === false) return "0";
+        return v;
     }
 
     function isSelected(field, choice, fallback) {
-        return String(value(field, fallback)) === String(choice);
+        const v = value(field, fallback);
+        if (v === null || v === undefined) return false;
+        return String(v) === String(choice);
     }
 
     function firstError(field) {

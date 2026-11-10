@@ -140,6 +140,7 @@
                     >
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>
                                 <a class="icon-text" href={sortUrl("name")}>
                                     {#if sort === "name"}
@@ -173,6 +174,7 @@
                     <tbody>
                         {#each sakinler.data as sakin}
                             <tr>
+                                <td>{sakin.id}</td>
                                 <td
                                     ><a
                                         href={`/sakin-view/${bina.id}/${sakin.id}`}

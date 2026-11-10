@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class SakinController extends Controller
@@ -65,25 +67,29 @@ class SakinController extends Controller
         $bina = Bina::query()
             ->accessibleTo(Auth::user())
             ->findOrFail($request->route('id'));
-        $user = $bina->sakinler()->findOrFail($request->route('sakinid'));
+
+        $sakin = null;
+        if ($request->route('sakinid')) {
+            $sakin = $bina->sakinler()->findOrFail($request->route('sakinid'));
+        }
 
         return Inertia::render('SakinForm', [
             'bina' => [
                 'id' => $bina->id,
                 'name' => $bina->name,
             ],
-            'sakin' => $user ? [
-                'id' => $user->id,
-                'name' => $user->name,
-                'lastname' => $user->lastname,
-                'door_no' => $user->door_no,
-                'is_evsahibi' => (bool) $user->is_evsahibi,
-                'payratio' => $user->payratio,
-                'phone' => $user->phone,
-                'email' => $user->email,
-                'giris_tarihi' => $user->giris_tarihi,
-                'remarks' => $user->remarks,
-                'is_active' => (bool) $user->is_active,
+            'sakin' => $sakin ? [
+                'id' => $sakin->id,
+                'name' => $sakin->name,
+                'lastname' => $sakin->lastname,
+                'door_no' => $sakin->door_no,
+                'is_evsahibi' => (bool) $sakin->is_evsahibi,
+                'payratio' => $sakin->payratio,
+                'phone' => $sakin->phone,
+                'email' => $sakin->email,
+                'giris_tarihi' => $sakin->giris_tarihi,
+                'remarks' => $sakin->remarks,
+                'is_active' => (bool) $sakin->is_active,
             ] : null,
             'durum' => $this->durum,
             'oldInput' => [
@@ -119,6 +125,7 @@ class SakinController extends Controller
         $props['remarks'] = $req->input('editor_data');
         $props['is_active'] = $req->input('status');
         $props['is_sakin'] = true;
+        $props['password'] = Hash::make(Str::random(24));
 
         $user = User::create($props);
 
